@@ -10,7 +10,15 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000', 
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions)); 
+// app.use(cors());
 app.use(express.json());
 
 // Routes
