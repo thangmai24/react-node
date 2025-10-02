@@ -1,10 +1,13 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { chatAPI } from '../services/api';
+import { chatAPI, authAPI } from '../services/api';
 import { FaVolumeUp, FaPaperPlane, FaCog, FaUndo, FaTimes } from 'react-icons/fa';
 
 const Dashboard = () => {
+
+
+
   const [topic, setTopic] = useState('daily');
   const [message, setMessage] = useState('');
   const [replies, setReplies] = useState([]);
@@ -13,7 +16,23 @@ const Dashboard = () => {
   const messagesEndRef = useRef(null);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // gọi API verify token
+          await authAPI.verifyToken(token); 
+          navigate('/dashboard'); // nếu token hợp lệ thì cho vào dashboard
+        } catch (err) {
+          console.error("Token invalid or expired", err);
+          localStorage.removeItem('token'); // xóa token hết hạn
+          // navigate('/login');
+        }
+      }
+    };
+    checkToken();
+  }, [navigate]);
   // TTS Settings
   const [ttsSettings, setTtsSettings] = useState({
     speed: 0.9,        // Tốc độ (0.1 - 2.0)

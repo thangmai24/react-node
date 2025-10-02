@@ -1,0 +1,34 @@
+/* Animation quay bánh răng */
+.gear-icon.rotate {
+  animation: spinGear 0.5s ease-in-out;
+}
+
+@keyframes spinGear {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Sidebar hiển thị */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* Ẩn bên trái */
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  border-right: 1px solid #dee2e6;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  transition: left 0.3s ease-in-out;
+  z-index: 999;
+}
+
+.sidebar.open {
+  left: 0; /* Hiện ra */
+}

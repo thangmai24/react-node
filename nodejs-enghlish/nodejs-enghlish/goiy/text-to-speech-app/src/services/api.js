@@ -11,10 +11,11 @@ API.interceptors.request.use((req) => {
 export const authAPI = {
   register: (data) => API.post('/users/register', data),
   login: (data) => API.post('/users/login', data),
+  verifyToken: (token) => API.post('/verify', {}, { headers: { Authorization: `Bearer ${token}` } }),
 };
 
 export const chatAPI = {
-  sendMessage: (data) => API.post('/chat', data),
+  sendMessage: (data) => API.post('/chat', data ),
 };
 
 export default API;

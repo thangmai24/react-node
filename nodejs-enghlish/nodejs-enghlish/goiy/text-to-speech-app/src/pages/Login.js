@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { authAPI } from '../services/api';
@@ -9,11 +9,30 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // gọi API verify token
+          await authAPI.verifyToken(token); 
+          navigate('/dashboard'); // nếu token hợp lệ thì cho vào dashboard
+        } catch (err) {
+          console.error("Token invalid or expired", err);
+          localStorage.removeItem('token'); // xóa token hết hạn
+          navigate('/login');
+        }
+      }
+    };
+    checkToken();
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { data } = await authAPI.login({ email, password });
       login(data.token);
+      // localStorage.setItem('tokenapp', data.token);
       navigate('/dashboard');
     } catch (error) {
       alert('Login failed: ' + error.response?.data?.msg);

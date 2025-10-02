@@ -23,12 +23,25 @@ app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoutes);
+app.post('/api/verify', authMiddleware, (req, res) => {
+  res.json({ valid: true, user: req.user });
+});
+
+
+// Tạo object lưu lịch sử chat theo user
+const chatHistory = {}; 
 
 // Protected chat route (gọi Gemini API)
 app.post('/api/chat', authMiddleware, async (req, res) => {
   try {
     const { message, topic } = req.body; // topic: 'school', 'work', 'daily'
+ const userId = req.user.id; // từ JWT middleware
 
+    // Nếu user chưa có lịch sử thì khởi tạo
+    if (!chatHistory[userId]) chatHistory[userId] = [];
+
+    // Thêm tin nhắn mới vào lịch sử
+    chatHistory[userId].push({ role: "user", text: message });
     // System prompt dựa trên topic
     const systemPrompts = {
       school: 'You are a friendly school counselor. Respond conversationally in English, asking follow-up questions about school life.',
@@ -40,7 +53,7 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
 
     // Gọi Gemini API
     const geminiResponse = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY,
+      'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY,
       {
         method: 'POST',
         headers: {
@@ -49,11 +62,11 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
         body: JSON.stringify({
           contents: [
             {
-              role: 'user',
-              parts: [
-                { text: `${systemPrompt}\n\nUser: ${message}` }
-              ]
-            }
+              role: "system", parts: [{ text: systemPrompt }] },
+            ...chatHistory[userId].map(msg => ({
+              role: msg.role,
+              parts: [{ text: msg.text }]
+            }))
           ]
         })
       }
