@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { chatAPI, authAPI } from '../services/api';
 import { FaVolumeUp, FaPaperPlane, FaCog, FaUndo, FaTimes } from 'react-icons/fa';
-
+import { TextWithHoverTranslate } from './test';
 const Dashboard = () => {
 
 
@@ -670,7 +670,7 @@ useEffect(() => {
                       lineHeight: '1.5',
                       fontSize: '14px'
                     }}>
-                      {reply.text}
+                    {reply.text}
                     </div>
                     
                     {/* AI-specific: Footer với timestamp + Speaker controls */}

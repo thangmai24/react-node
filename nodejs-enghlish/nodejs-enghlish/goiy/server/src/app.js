@@ -12,12 +12,12 @@ connectDB();
 const app = express();
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000', 
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions)); 
+app.use(cors(corsOptions));
 // app.use(cors());
 app.use(express.json());
 
@@ -29,19 +29,12 @@ app.post('/api/verify', authMiddleware, (req, res) => {
 
 
 // Tạo object lưu lịch sử chat theo user
-const chatHistory = {}; 
+const chatHistory = {};
 
 // Protected chat route (gọi Gemini API)
 app.post('/api/chat', authMiddleware, async (req, res) => {
   try {
     const { message, topic } = req.body; // topic: 'school', 'work', 'daily'
- const userId = req.user.id; // từ JWT middleware
-
-    // Nếu user chưa có lịch sử thì khởi tạo
-    if (!chatHistory[userId]) chatHistory[userId] = [];
-
-    // Thêm tin nhắn mới vào lịch sử
-    chatHistory[userId].push({ role: "user", text: message });
     // System prompt dựa trên topic
     const systemPrompts = {
       school: 'You are a friendly school counselor. Respond conversationally in English, asking follow-up questions about school life.',
@@ -50,10 +43,15 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
     };
 
     const systemPrompt = systemPrompts[topic] || 'You are a helpful assistant. Respond conversationally in English.';
-
+    let r = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
+    const keys = [
+      process.env.GEMINI_API_KEY,
+      process.env.GEMINI_API_KEY1,
+      process.env.GEMINI_API_KEY2,
+    ];
     // Gọi Gemini API
     const geminiResponse = await fetch(
-      'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY,
+      'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + keys[r],
       {
         method: 'POST',
         headers: {
@@ -62,11 +60,11 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
         body: JSON.stringify({
           contents: [
             {
-              role: "system", parts: [{ text: systemPrompt }] },
-            ...chatHistory[userId].map(msg => ({
-              role: msg.role,
-              parts: [{ text: msg.text }]
-            }))
+              role: 'user',
+              parts: [
+                { text: `${systemPrompt}\n\nUser: ${message}` }
+              ]
+            }
           ]
         })
       }
@@ -80,7 +78,7 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
     }
 
     const aiReply = data.candidates[0].content.parts[0].text;
-    res.json({ reply: aiReply });
+    res.json({ reply: aiReply, key: r });
   } catch (error) {
     console.error('Gemini API error:', error);
     res.status(500).json({ msg: 'AI service error' });
