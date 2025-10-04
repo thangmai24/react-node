@@ -237,7 +237,12 @@ useEffect(() => {
   }
 
   return (
+    
+
+    
     <div style={{ display: 'flex', height: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+
+      
       {/* Sidebar */}
       <aside style={{ 
         width: '280px', 
@@ -248,6 +253,9 @@ useEffect(() => {
         position: 'relative'
       }}>
         {/* Header */}
+        
+
+        
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -257,78 +265,20 @@ useEffect(() => {
           borderBottom: '1px solid #dee2e6'
         }}>
           <h3 style={{ margin: 0, color: '#495057', fontSize: '18px' }}>
-            ⚙️ Settings
+            Luyen tap tong hop
           </h3>
-        </div>
-
-        {/* Topic Selection */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
-            display: 'block', 
-            marginBottom: '8px', 
-            fontWeight: '600', 
-            fontSize: '14px',
-            color: '#495057'
-          }}>
-            🎯 Chủ đề giao tiếp:
-          </label>
-          <select 
-            value={topic} 
-            onChange={(e) => setTopic(e.target.value)} 
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              borderRadius: '6px', 
-              border: '1px solid #ced4da',
-              backgroundColor: 'white',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            {topics.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* TTS Settings Toggle */}
-        <div 
-          style={{ 
-            marginBottom: '15px',
-            padding: '12px',
-            background: '#e3f2fd',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            border: '1px solid #bbdefb',
-            transition: 'all 0.2s ease'
-          }}
-          onClick={() => setShowTtsSettings(!showTtsSettings)}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <FaVolumeUp size={16} style={{ marginRight: '8px', color: '#1976d2' }} />
-              <span style={{ fontWeight: '600', color: '#1976d2' }}>TTS Settings</span>
-            </div>
-            <span style={{ 
-              color: showTtsSettings ? '#1976d2' : '#6c757d',
-              fontSize: '12px',
-              fontWeight: '500'
-            }}>
-              {showTtsSettings ? '▲ Thu gọn' : '▼ Mở rộng'}
-            </span>
-          </div>
-        </div>
-
-        {/* TTS Settings Panel */}
+           {/* TTS Settings Panel */}
         {showTtsSettings && (
           <div style={{ 
+            position: 'fixed',
+            top: '80px',
+            right: '20px',
             background: 'white', 
             borderRadius: '8px', 
             padding: '16px',
             border: '1px solid #dee2e6',
-            marginBottom: '20px'
+            marginBottom: '20px',
+            zIndex: 1000,
           }}>
             <h4 style={{ 
               margin: '0 0 15px 0', 
@@ -525,6 +475,43 @@ useEffect(() => {
             </button>
           </div>
         )}
+        </div>
+
+        {/* Topic Selection */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '8px', 
+            fontWeight: '600', 
+            fontSize: '14px',
+            color: '#495057'
+          }}>
+            🎯 Chủ đề giao tiếp:
+          </label>
+          <select 
+            value={topic} 
+            onChange={(e) => setTopic(e.target.value)} 
+            style={{ 
+              width: '100%', 
+              padding: '10px 12px', 
+              borderRadius: '6px', 
+              border: '1px solid #ced4da',
+              backgroundColor: 'white',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            {topics.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+     
+
+       
 
         {/* Logout Button */}
         <div style={{ 

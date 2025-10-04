@@ -57,8 +57,6 @@ const TextWithHoverTranslate = ({ text }) => {
   const handleMouseLeave = () => {
     // đợi một chút trước khi ẩn để người dùng kịp di chuột sang popup
     hideTimeoutRef.current = setTimeout(() => {
-      setHoveredWord(null);
-      setTranslation("");
       hideTimeoutRef.current = null;
     }, 500); 
   };
@@ -82,8 +80,7 @@ const TextWithHoverTranslate = ({ text }) => {
 
             {hoveredWord === idx && (
               <div
-                className="absolute left-0 top-full mt-1 z-50 bg-white border rounded-xl shadow-lg p-3 w-56"
-                // bảo đảm timer ẩn bị hủy khi di chuột vào popup
+                className="absolute left-[-85] top-full mt-1 z-50 bg-white border rounded-xl shadow-lg p-3 w-56"
                 onMouseEnter={() => {
                   if (hideTimeoutRef.current) {
                     clearTimeout(hideTimeoutRef.current);

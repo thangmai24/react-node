@@ -14,12 +14,11 @@ const Login = () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          // gọi API verify token
-          await authAPI.verifyToken(token); 
-          navigate('/dashboard'); // nếu token hợp lệ thì cho vào dashboard
+          await authAPI.verifyToken(token);
+          navigate('/dashboard');
         } catch (err) {
           console.error("Token invalid or expired", err);
-          localStorage.removeItem('token'); // xóa token hết hạn
+          localStorage.removeItem('token');
           navigate('/login');
         }
       }
@@ -32,7 +31,6 @@ const Login = () => {
     try {
       const { data } = await authAPI.login({ email, password });
       login(data.token);
-      // localStorage.setItem('tokenapp', data.token);
       navigate('/dashboard');
     } catch (error) {
       alert('Login failed: ' + error.response?.data?.msg);
@@ -40,16 +38,16 @@ const Login = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-md mx-auto mt-12 p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="password"
@@ -57,11 +55,19 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button type="submit" style={{ width: '100%', padding: '10px' }}>Login</button>
+        <button 
+          type="submit" 
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Login
+        </button>
       </form>
-      <p>Don't have account? <a href="/register">Register</a></p>
+      <p className="mt-4 text-center text-gray-600">
+        Don&apos;t have an account?{' '}
+        <a href="/register" className="text-blue-600 hover:underline">Register</a>
+      </p>
     </div>
   );
 };
