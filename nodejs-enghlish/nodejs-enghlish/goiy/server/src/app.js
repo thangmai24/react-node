@@ -30,7 +30,7 @@ app.post('/api/verify', authMiddleware, (req, res) => {
 
 // Tạo object lưu lịch sử chat theo user
 const chatHistory = {};
-
+let r = 0;
 // Protected chat route (gọi Gemini API)
 app.post('/api/chat', authMiddleware, async (req, res) => {
   try {
@@ -43,12 +43,11 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
     };
 
     const systemPrompt = systemPrompts[topic] || 'You are a helpful assistant. Respond conversationally in English.';
-    let r = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
-    const keys = [
-      process.env.GEMINI_API_KEY,
-      process.env.GEMINI_API_KEY1,
-      process.env.GEMINI_API_KEY2,
-    ];
+
+    
+     
+    const keys = JSON.parse(process.env.GEMINI_API_KEY || '[]');
+    r = (r + 1) % keys.length;
     // Gọi Gemini API
     const geminiResponse = await fetch(
       'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + keys[r],
