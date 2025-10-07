@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { chatAPI, authAPI } from '../services/api';
 import { FaVolumeUp, FaPaperPlane, FaCog, FaUndo, FaTimes } from 'react-icons/fa';
 import { TextWithHoverTranslate } from './test';
+import  Navbar from '../test/Nav';
+import Notes from '../test/Notes';
 const Dashboard = () => {
 
 
@@ -237,735 +239,345 @@ useEffect(() => {
   }
 
   return (
-    
+    <>
+    <Notes />
+ <Navbar />
+     <div className="flex h-[calc(100vh-64px)] font-sans mt-[24px]">
+   
 
-    
-    <div style={{ display: 'flex', height: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-
-      
-      {/* Sidebar */}
-      <aside style={{ 
-        width: '280px', 
-        padding: '20px', 
-        background: '#f8f9fa',
-        borderRight: '1px solid #dee2e6',
-        overflowY: 'auto',
-        position: 'relative'
-      }}>
-        {/* Header */}
-        
-
-        
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between',
-          marginBottom: '20px',
-          paddingBottom: '10px',
-          borderBottom: '1px solid #dee2e6'
-        }}>
-          <h3 style={{ margin: 0, color: '#495057', fontSize: '18px' }}>
-            Luyen tap tong hop
-          </h3>
-           {/* TTS Settings Panel */}
-        {showTtsSettings && (
-          <div style={{ 
-            position: 'fixed',
-            top: '80px',
-            right: '20px',
-            background: 'white', 
-            borderRadius: '8px', 
-            padding: '16px',
-            border: '1px solid #dee2e6',
-            marginBottom: '20px',
-            zIndex: 1000,
-          }}>
-            <h4 style={{ 
-              margin: '0 0 15px 0', 
-              fontSize: '14px', 
-              color: '#495057',
-              borderBottom: '1px solid #eee',
-              paddingBottom: '8px'
-            }}>
-              🎚️ Điều chỉnh giọng nói
-            </h4>
-
-            {/* Speed Control */}
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '500' }}>
-                Tốc độ phát: {ttsSettings.speed.toFixed(1)}x
-              </label>
-              <input
-                type="range"
-                min="0.1"
-                max="2.0"
-                step="0.1"
-                value={ttsSettings.speed}
-                onChange={(e) => updateTtsSetting('speed', parseFloat(e.target.value))}
-                style={{
-                  width: '100%',
-                  height: '4px',
-                  borderRadius: '2px',
-                  background: '#ddd',
-                  outline: 'none',
-                  '-webkit-appearance': 'none'
-                }}
-                onMouseOver={(e) => e.target.style.background = 'linear-gradient(to right, #007bff 0%, #007bff ' + ((ttsSettings.speed - 0.1) / 1.9 * 100) + '%, #ddd ' + ((ttsSettings.speed - 0.1) / 1.9 * 100) + '%)'}
-                onMouseOut={(e) => e.target.style.background = '#ddd'}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6c757d', marginTop: '2px' }}>
-                <span>Chậm (0.1x)</span>
-                <span>Nhanh (2.0x)</span>
-              </div>
+ 
+          {/* Sidebar */}
+          <aside className="w-[280px] p-5 bg-gray-100 border-r border-gray-200 overflow-y-auto ">
+            <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-700">Luyen tap tong hop</h3>
             </div>
 
-            {/* Repeat Control */}
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '500' }}>
-                Số lần lặp: {ttsSettings.repeat}x
-              </label>
-              <input
-                type="range"
-                min="1"
-                max="5"
-                step="1"
-                value={ttsSettings.repeat}
-                onChange={(e) => updateTtsSetting('repeat', parseInt(e.target.value))}
-                style={{
-                  width: '100%',
-                  height: '4px',
-                  borderRadius: '2px',
-                  background: '#ddd',
-                  outline: 'none',
-                  '-webkit-appearance': 'none'
-                }}
-                onMouseOver={(e) => e.target.style.background = 'linear-gradient(to right, #28a745 0%, #28a745 ' + ((ttsSettings.repeat - 1) / 4 * 100) + '%, #ddd ' + ((ttsSettings.repeat - 1) / 4 * 100) + '%)'}
-                onMouseOut={(e) => e.target.style.background = '#ddd'}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6c757d', marginTop: '2px' }}>
-                <span>1 lần</span>
-                <span>5 lần</span>
-              </div>
-            </div>
-
-            {/* Volume Control */}
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '500' }}>
-                Âm lượng: {(ttsSettings.volume * 100).toFixed(0)}%
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={ttsSettings.volume}
-                onChange={(e) => updateTtsSetting('volume', parseFloat(e.target.value))}
-                style={{
-                  width: '100%',
-                  height: '4px',
-                  borderRadius: '2px',
-                  background: '#ddd',
-                  outline: 'none',
-                  '-webkit-appearance': 'none'
-                }}
-                onMouseOver={(e) => e.target.style.background = 'linear-gradient(to right, #dc3545 0%, #dc3545 ' + (ttsSettings.volume * 100) + '%, #ddd ' + (ttsSettings.volume * 100) + '%)'}
-                onMouseOut={(e) => e.target.style.background = '#ddd'}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6c757d', marginTop: '2px' }}>
-                <span>Tắt tiếng</span>
-                <span>To nhất</span>
-              </div>
-            </div>
-
-            {/* Pitch Control */}
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '500' }}>
-                Cao độ: {ttsSettings.pitch.toFixed(1)}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="2"
-                step="0.1"
-                value={ttsSettings.pitch}
-                onChange={(e) => updateTtsSetting('pitch', parseFloat(e.target.value))}
-                style={{
-                  width: '100%',
-                  height: '4px',
-                  borderRadius: '2px',
-                  background: '#ddd',
-                  outline: 'none',
-                  '-webkit-appearance': 'none'
-                }}
-                onMouseOver={(e) => e.target.style.background = 'linear-gradient(to right, #ffc107 0%, #ffc107 ' + (ttsSettings.pitch * 50) + '%, #ddd ' + (ttsSettings.pitch * 50) + '%)'}
-                onMouseOut={(e) => e.target.style.background = '#ddd'}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6c757d', marginTop: '2px' }}>
-                <span>Thấp</span>
-                <span>Cao</span>
-              </div>
-            </div>
-
-            {/* Voice Selection */}
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '500' }}>
-                Ngôn ngữ:
-              </label>
-              <select
-                value={ttsSettings.currentVoice}
-                onChange={(e) => updateTtsSetting('currentVoice', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 10px',
-                  borderRadius: '4px',
-                  border: '1px solid #ced4da',
-                  backgroundColor: 'white',
-                  fontSize: '13px'
-                }}
+            {/* Topic Selection */}
+            <div className="mb-5">
+              <label className="block mb-2 font-semibold text-sm text-gray-700">🎯 Chủ đề giao tiếp:</label>
+              <select 
+                value={topic} 
+                onChange={(e) => setTopic(e.target.value)} 
+                className="w-full p-2.5 rounded-md border border-gray-300 bg-white text-sm cursor-pointer"
               >
-                <option value="en-US">English (US)</option>
-                <option value="en-GB">English (UK)</option>
-                <option value="vi-VN">Tiếng Việt</option>
-                <option value="es-ES">Español</option>
-                <option value="fr-FR">Français</option>
+                {topics.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
               </select>
             </div>
 
-            {/* Auto-play Toggle */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              marginBottom: '15px',
-              padding: '8px',
-              background: ttsSettings.autoPlay ? '#d4edda' : '#f8f9fa',
-              borderRadius: '6px',
-              border: `1px solid ${ttsSettings.autoPlay ? '#c3e6cb' : '#dee2e6'}`
-            }}>
-              <input
-                type="checkbox"
-                checked={ttsSettings.autoPlay}
-                onChange={(e) => updateTtsSetting('autoPlay', e.target.checked)}
-                style={{ marginRight: '8px' }}
-              />
-              <span style={{ fontSize: '13px', color: '#495057' }}>
-                🔄 Tự động phát khi nhận response
-              </span>
-            </div>
-
-            {/* Reset Button */}
-            <button
-              onClick={resetTtsSettings}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '12px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px'
-              }}
+            {/* Logout Button */}
+            <div 
+              className="mt-5 p-3 bg-red-100 text-red-800 rounded-lg text-center cursor-pointer border border-red-200 transition-colors hover:bg-red-200"
+              onClick={logout}
             >
-              <FaUndo size={12} />
-              Reset về mặc định
-            </button>
-          </div>
-        )}
-        </div>
-
-        {/* Topic Selection */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
-            display: 'block', 
-            marginBottom: '8px', 
-            fontWeight: '600', 
-            fontSize: '14px',
-            color: '#495057'
-          }}>
-            🎯 Chủ đề giao tiếp:
-          </label>
-          <select 
-            value={topic} 
-            onChange={(e) => setTopic(e.target.value)} 
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              borderRadius: '6px', 
-              border: '1px solid #ced4da',
-              backgroundColor: 'white',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            {topics.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-     
-
-       
-
-        {/* Logout Button */}
-        <div style={{ 
-          marginTop: '20px',
-          padding: '15px',
-          background: '#f8d7da',
-          color: '#721c24',
-          borderRadius: '8px',
-          textAlign: 'center',
-          cursor: 'pointer',
-          border: '1px solid #f5c6cb',
-          transition: 'all 0.2s ease'
-        }} 
-        onClick={logout}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#f5c6cb';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = '#f8d7da';
-        }}
-        >
-          🚪 Logout
-        </div>
-
-        {/* TTS Status */}
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '12px', 
-          background: ('speechSynthesis' in window) ? '#d4edda' : '#f8d7da',
-          borderRadius: '6px',
-          border: `1px solid ${('speechSynthesis' in window) ? '#c3e6cb' : '#f5c6cb'}`,
-          fontSize: '12px',
-          color: ('speechSynthesis' in window) ? '#155724' : '#721c24'
-        }}>
-          <strong>TTS Status:</strong><br/>
-          {('speechSynthesis' in window) ? '✅ Được hỗ trợ' : '❌ Không hỗ trợ'}
-          {('speechSynthesis' in window) && (
-            <div style={{ marginTop: '4px', fontSize: '11px', opacity: 0.8 }}>
-              Voices loaded: {speechSynthesis.getVoices().length}
+              🚪 Logout
             </div>
-          )}
-        </div>
-      </aside>
 
-      {/* Main Chat Area */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
-        <header style={{ 
-          padding: '20px', 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-          color: 'white',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <h1 style={{ margin: 0, fontSize: '24px' }}>
-                🤖 AI Conversation Assistant
-              </h1>
-              <p style={{ margin: '5px 0 0 0', opacity: 0.9, fontSize: '14px' }}>
-                Chủ đề: <strong>{topics.find(t => t.value === topic)?.label}</strong>
-                {ttsSettings.autoPlay && <span style={{ marginLeft: '15px', padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: '10px', fontSize: '12px' }}>🔊 Auto-play ON</span>}
-              </p>
+            {/* TTS Status */}
+            <div className={`mt-5 p-3 rounded-md border text-xs ${'speechSynthesis' in window ? 'bg-green-100 border-green-200 text-green-800' : 'bg-red-100 border-red-200 text-red-800'}`}>
+              <strong>TTS Status:</strong><br/>
+              {'speechSynthesis' in window ? '✅ Được hỗ trợ' : '❌ Không hỗ trợ'}
+              {'speechSynthesis' in window && (
+                <div className="mt-1 text-[11px] opacity-80">
+                  Voices loaded: {speechSynthesis.getVoices().length}
+                </div>
+              )}
             </div>
-            <div style={{ 
-              padding: '8px', 
-              background: 'rgba(255,255,255,0.2)', 
-              borderRadius: '50%', 
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onClick={() => setShowTtsSettings(!showTtsSettings)}
-            title="TTS Settings"
-            >
-              <FaCog size={18} />
-            </div>
-          </div>
-        </header>
+          </aside>
 
-        {/* Messages Container */}
-        <div style={{ 
-          flex: 1, 
-          overflowY: 'auto', 
-          padding: '20px',
-          backgroundColor: '#f8f9fa'
-        }}>
-          {replies.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              color: '#6c757d', 
-              marginTop: '50px',
-              fontSize: '16px'
-            }}>
-              <div style={{ fontSize: '64px', marginBottom: '15px', opacity: 0.5 }}>💬</div>
-              <p style={{ marginBottom: '10px' }}>Chào mừng bạn đến với AI Chat!</p>
-              <p style={{ marginBottom: '20px', fontSize: '14px' }}>
-                Nhập tin nhắn và nhấn Enter để bắt đầu cuộc trò chuyện.
-              </p>
-              <div style={{ 
-                padding: '10px 20px', 
-                background: 'white', 
-                borderRadius: '20px', 
-                display: 'inline-block',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}>
-                <strong>Chủ đề hiện tại:</strong> {topics.find(t => t.value === topic)?.label}
-              </div>
-              <div style={{ marginTop: '20px', fontSize: '12px', opacity: 0.7 }}>
-                💡 Mẹo: Click icon loa 🔊 để phát lại với settings tùy chỉnh
-              </div>
-            </div>
-          ) : (
-            replies.map((reply) => (
-              <div 
-                key={reply.id} 
-                style={{ 
-                  marginBottom: '20px', 
-                  display: 'flex',
-                  justifyContent: reply.type === 'user' ? 'flex-end' : 'flex-start',
-                  alignItems: 'flex-end'
-                }}
-              >
-                <div style={{
-                  maxWidth: '75%',
-                  wordWrap: 'break-word'
-                }}>
-                  {/* Bubble container */}
-                  <div style={{
-                    padding: '14px 18px',
-                    borderRadius: '20px',
-                    background: reply.type === 'user' 
-                      ? 'linear-gradient(135deg, #007bff, #0056b3)' 
-                      : 'white',
-                    color: reply.type === 'user' ? 'white' : '#212529',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    position: 'relative',
-                    borderBottomRightRadius: reply.type === 'user' ? '6px' : '20px',
-                    borderBottomLeftRadius: reply.type === 'ai' ? '6px' : '20px',
-                    border: '1px solid rgba(0,0,0,0.05)'
-                  }}>
-                    {/* Content */}
-                    <div style={{ 
-                      marginBottom: reply.type === 'ai' ? '10px' : '0',
-                      lineHeight: '1.5',
-                      fontSize: '14px'
-                    }}>
-                    {reply.text}
+          {/* Main Chat Area */}
+          <main className="flex-1 flex flex-col">
+            {/* Header */}
+            <header className="p-5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold">🤖 AI Conversation Assistant</h1>
+                  <p className="mt-1 opacity-90 text-sm">
+                    Chủ đề: <strong>{topics.find(t => t.value === topic)?.label}</strong>
+                    {ttsSettings.autoPlay && <span className="ml-3 px-2 py-1 bg-white/20 rounded-full text-xs">🔊 Auto-play ON</span>}
+                  </p>
+                </div>
+                <div 
+                  className="p-2 bg-white/20 rounded-full cursor-pointer hover:bg-white/30 transition-all"
+                 
+                  title="TTS Settings"
+                >
+                  <FaCog size={18}  onClick={() => setShowTtsSettings(!showTtsSettings)} />
+                  {/* TTS Settings Panel */}
+              {showTtsSettings && (
+                <div className="absolute right-[22px] mt-2 bg-white text-gray-800 rounded-lg p-4 border border-gray-200 shadow-lg z-50 min-w-[200px]">
+                  <h4 className="mb-4 text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">🎚️ Điều chỉnh giọng nói</h4>
+
+                  {/* Speed Control */}
+                  <div className="mb-4">
+                    <label className="block mb-1 text-xs font-medium">Tốc độ phát: {ttsSettings.speed.toFixed(1)}x</label>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="2.0"
+                      step="0.1"
+                      value={ttsSettings.speed}
+                      onChange={(e) => updateTtsSetting('speed', parseFloat(e.target.value))}
+                      className="w-full h-1 rounded bg-gray-200 outline-none appearance-none"
+                    />
+                    <div className="flex justify-between text-[11px] text-gray-600 mt-1">
+                      <span>Chậm (0.1x)</span>
+                      <span>Nhanh (2.0x)</span>
                     </div>
-                    
-                    {/* AI-specific: Footer với timestamp + Speaker controls */}
-                    {reply.type === 'ai' && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        paddingTop: '8px',
-                        borderTop: '1px solid rgba(0,0,0,0.05)'
-                      }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '8px',
-                          fontSize: '12px',
-                          color: '#6c757d'
-                        }}>
-                          <span style={{ fontSize: '11px' }}>
-                            {reply.timestamp}
-                          </span>
-                          <span style={{ fontSize: '11px', opacity: 0.7 }}>
-                            • {ttsSettings.speed.toFixed(1)}x • {ttsSettings.repeat}x
-                          </span>
-                        </div>
-                        
-                        {/* Speaker Button với visual feedback */}
-                        <button
-                          onClick={(e) => handleReplaySpeech(reply.text, e)}
-                          title={`Phát lại (${ttsSettings.repeat}x, ${ttsSettings.speed.toFixed(1)}x)`}
-                          style={{
-                            background: 'rgba(0,123,255,0.1)',
-                            border: '1px solid rgba(0,123,255,0.2)',
-                            cursor: 'pointer',
-                            padding: '6px 8px',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            transition: 'all 0.2s ease',
-                            fontSize: '12px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = 'rgba(0,123,255,0.2)';
-                            e.target.style.transform = 'scale(1.05)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = 'rgba(0,123,255,0.1)';
-                            e.target.style.transform = 'scale(1)';
-                          }}
-                        >
-                          <FaVolumeUp size={14} style={{ color: '#007bff' }} />
-                          <span style={{ fontWeight: '500' }}>Play</span>
-                        </button>
-                      </div>
-                    )}
-                    
-                    {/* User: Chỉ timestamp */}
-                    {reply.type === 'user' && (
-                      <div style={{ 
-                        textAlign: 'right',
-                        fontSize: '12px',
-                        color: 'rgba(255,255,255,0.8)',
-                        marginTop: '8px',
-                        paddingTop: '8px',
-                        borderTop: '1px solid rgba(255,255,255,0.1)'
-                      }}>
-                        {reply.timestamp}
-                      </div>
-                    )}
-                    
-                    {/* Error message styling */}
-                    {reply.type === 'error' && (
-                      <div style={{ 
-                        backgroundColor: '#f8d7da !important',
-                        color: '#721c24 !important',
-                        border: '1px solid #f5c6cb !important',
-                        borderRadius: '8px !important'
-                      }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '8px',
-                          padding: '8px 0'
-                        }}>
-                          <div style={{ 
-                            width: '8px', 
-                            height: '8px', 
-                            background: '#dc3545', 
-                            borderRadius: '50%' 
-                          }}></div>
-                          <strong style={{ fontSize: '13px' }}>Lỗi:</strong>
-                          <span style={{ fontSize: '13px' }}>{reply.text}</span>
-                        </div>
-                      </div>
-                    )}
+                  </div>
+
+                  {/* Repeat Control */}
+                  <div className="mb-4">
+                    <label className="block mb-1 text-xs font-medium">Số lần lặp: {ttsSettings.repeat}x</label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      step="1"
+                      value={ttsSettings.repeat}
+                      onChange={(e) => updateTtsSetting('repeat', parseInt(e.target.value))}
+                      className="w-full h-1 rounded bg-gray-200 outline-none appearance-none"
+                    />
+                    <div className="flex justify-between text-[11px] text-gray-600 mt-1">
+                      <span>1 lần</span>
+                      <span>5 lần</span>
+                    </div>
+                  </div>
+
+                  {/* Volume Control */}
+                  <div className="mb-4">
+                    <label className="block mb-1 text-xs font-medium">Âm lượng: {(ttsSettings.volume * 100).toFixed(0)}%</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={ttsSettings.volume}
+                      onChange={(e) => updateTtsSetting('volume', parseFloat(e.target.value))}
+                      className="w-full h-1 rounded bg-gray-200 outline-none appearance-none"
+                    />
+                    <div className="flex justify-between text-[11px] text-gray-600 mt-1">
+                      <span>Tắt tiếng</span>
+                      <span>To nhất</span>
+                    </div>
+                  </div>
+
+                  {/* Pitch Control */}
+                  <div className="mb-4">
+                    <label className="block mb-1 text-xs font-medium">Cao độ: {ttsSettings.pitch.toFixed(1)}</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={ttsSettings.pitch}
+                      onChange={(e) => updateTtsSetting('pitch', parseFloat(e.target.value))}
+                      className="w-full h-1 rounded bg-gray-200 outline-none appearance-none"
+                    />
+                    <div className="flex justify-between text-[11px] text-gray-600 mt-1">
+                      <span>Thấp</span>
+                      <span>Cao</span>
+                    </div>
+                  </div>
+
+                  {/* Voice Selection */}
+                  <div className="mb-4">
+                    <label className="block mb-1 text-xs font-medium">Ngôn ngữ:</label>
+                    <select
+                      value={ttsSettings.currentVoice}
+                      onChange={(e) => updateTtsSetting('currentVoice', e.target.value)}
+                      className="w-full p-2 rounded border border-gray-300 bg-white text-xs"
+                    >
+                      <option value="en-US">English (US)</option>
+                      <option value="en-GB">English (UK)</option>
+                      <option value="vi-VN">Tiếng Việt</option>
+                      <option value="es-ES">Español</option>
+                      <option value="fr-FR">Français</option>
+                    </select>
+                  </div>
+
+                  {/* Auto-play Toggle */}
+                  <div className={`flex items-center mb-4 p-2 rounded border ${ttsSettings.autoPlay ? 'bg-green-100 border-green-200' : 'bg-gray-100 border-gray-200'}`}>
+                    <input
+                      type="checkbox"
+                      checked={ttsSettings.autoPlay}
+                      onChange={(e) => updateTtsSetting('autoPlay', e.target.checked)}
+                      className="mr-2"
+                    />
+                    <span className="text-xs text-gray-700">🔄 Tự động phát khi nhận response</span>
+                  </div>
+
+                  {/* Reset Button */}
+                  <button
+                    onClick={resetTtsSettings}
+                    className="w-full p-2 bg-gray-500 text-white rounded flex items-center justify-center gap-1.5 text-xs hover:bg-gray-600"
+                  >
+                    <FaUndo size={12} />
+                    Reset về mặc định
+                  </button>
+                </div>
+              )}
+                </div>
+                
+              </div>
+
+              
+            </header>
+
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-5 bg-gray-100">
+              {replies.length === 0 ? (
+                <div className="text-center text-gray-600 mt-12 text-base">
+                  <div className="text-6xl mb-4 opacity-50">💬</div>
+                  <p className="mb-2">Chào mừng bạn đến với AI Chat!</p>
+                  <p className="mb-5 text-sm">Nhập tin nhắn và nhấn Enter để bắt đầu cuộc trò chuyện.</p>
+                  <div className="inline-block px-5 py-2 bg-white rounded-full shadow">
+                    <strong>Chủ đề hiện tại:</strong> {topics.find(t => t.value === topic)?.label}
+                  </div>
+                  <div className="mt-5 text-xs opacity-70">
+                    💡 Mẹo: Click icon loa 🔊 để phát lại với settings tùy chỉnh
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-          
-          {/* Loading indicator */}
-          {loading && (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'flex-start', 
-              marginBottom: '20px' 
-            }}>
-              <div style={{
-                padding: '14px 18px',
-                background: '#e9ecef',
-                borderRadius: '20px',
-                borderBottomLeftRadius: '6px',
-                maxWidth: '75%',
-                position: 'relative',
-                border: '1px solid #dee2e6'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    border: '2px solid #dee2e6',
-                    borderTop: '2px solid #007bff',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  <span style={{ fontSize: '14px', color: '#495057' }}>
-                    AI đang suy nghĩ...
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} style={{ 
-          padding: '20px', 
-          borderTop: '1px solid #dee2e6',
-          backgroundColor: 'white',
-          boxShadow: '0 -2px 8px rgba(0,0,0,0.05)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={`💭 Nhập tin nhắn về ${topics.find(t => t.value === topic)?.label}... (Enter để gửi, Shift+Enter để xuống dòng)`}
-              style={{ 
-                flex: 1, 
-                padding: '14px 18px', 
-                borderRadius: '25px', 
-                border: '1px solid #ced4da',
-                resize: 'none',
-                fontSize: '14px',
-                lineHeight: '1.5',
-                maxHeight: '120px',
-                outline: 'none',
-                transition: 'all 0.2s ease',
-                fontFamily: 'inherit'
-              }}
-              rows={1}
-              disabled={loading}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#007bff';
-                e.target.style.boxShadow = '0 0 0 0.2rem rgba(0,123,255,0.25)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#ced4da';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-            <button 
-              type="submit" 
-              disabled={loading || !message.trim()} 
-              style={{ 
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                border: 'none',
-                backgroundColor: loading || !message.trim() ? '#6c757d' : 
-                               ttsSettings.autoPlay ? '#28a745' : '#007bff',
-                color: 'white',
-                cursor: loading || !message.trim() ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-              }}
-              title={ttsSettings.autoPlay ? "Gửi & tự động phát âm" : "Gửi tin nhắn"}
-            >
-              {loading ? (
-                <div style={{
-                  width: '18px',
-                  height: '18px',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  borderTop: '2px solid white',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }}></div>
               ) : (
-                <FaPaperPlane size={18} style={{ transform: 'rotate(-45deg)' }} />
+                replies.map((reply) => (
+                  <div 
+                    key={reply.id} 
+                    className={`mb-5 flex ${reply.type === 'user' ? 'justify-end' : 'justify-start'} items-end`}
+                  >
+                    <div className="max-w-[75%] break-words">
+                      <div className={`p-3.5 rounded-2xl ${reply.type === 'user' ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white' : 'bg-white text-gray-900'} shadow-lg border border-gray-100 ${reply.type === 'user' ? 'rounded-br-md' : 'rounded-bl-md'}`}>
+                        <div className={`mb-${reply.type === 'ai' ? '2.5' : '0'} leading-relaxed text-sm`}>
+                          {reply.text}
+                        </div>
+                        {reply.type === 'ai' && (
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <span className="text-[11px]">{reply.timestamp}</span>
+                              <span className="text-[11px] opacity-70">• {ttsSettings.speed.toFixed(1)}x • {ttsSettings.repeat}x</span>
+                            </div>
+                            <button
+                              onClick={(e) => handleReplaySpeech(reply.text, e)}
+                              title={`Phát lại (${ttsSettings.repeat}x, ${ttsSettings.speed.toFixed(1)}x)`}
+                              className="bg-blue-100 border border-blue-200 p-1.5 rounded-xl flex items-center gap-1 text-xs font-medium hover:bg-blue-200 transition-all hover:scale-105"
+                            >
+                              <FaVolumeUp size={14} className="text-blue-500" />
+                              <span>Play</span>
+                            </button>
+                          </div>
+                        )}
+                        {reply.type === 'user' && (
+                          <div className="text-right text-xs text-white/80 mt-2 pt-2 border-t border-white/10">
+                            {reply.timestamp}
+                          </div>
+                        )}
+                        {reply.type === 'error' && (
+                          <div className="bg-red-100 text-red-800 border-red-200 rounded-lg border p-2 flex items-center gap-2">
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <strong className="text-xs">Lỗi:</strong>
+                            <span className="text-xs">{reply.text}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
               )}
-            </button>
-          </div>
-          
-          {/* Settings preview */}
-          {ttsSettings.autoPlay && (
-            <div style={{ 
-              marginTop: '8px', 
-              padding: '6px 12px', 
-              background: 'rgba(40,167,69,0.1)', 
-              borderRadius: '20px', 
-              fontSize: '12px', 
-              color: '#155724',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <FaVolumeUp size={12} />
-              <span>Tự động phát với {ttsSettings.speed.toFixed(1)}x, {ttsSettings.repeat}x lần</span>
-              <button
-                onClick={() => updateTtsSetting('autoPlay', false)}
-                style={{
-                  marginLeft: 'auto',
-                  background: 'none',
-                  border: 'none',
-                  color: 'inherit',
-                  cursor: 'pointer',
-                  padding: 0,
-                  width: '16px',
-                  height: '16px'
-                }}
-                title="Tắt auto-play"
-              >
-                <FaTimes size={12} />
-              </button>
+              {loading && (
+                <div className="flex justify-start mb-5">
+                  <div className="p-3.5 bg-gray-200 rounded-2xl rounded-bl-md max-w-[75%] border border-gray-300">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                      <span className="text-sm text-gray-700">AI đang suy nghĩ...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-          )}
-        </form>
-      </main>
 
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #007bff;
-          cursor: pointer;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        input[type="range"]::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #007bff;
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        textarea {
-          min-height: 56px;
-          overflow-y: auto;
-        }
-        
-        textarea:focus {
-          border-color: #007bff !important;
-          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: #c1c1c1;
-          border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: #a8a8a8;
-        }
-      `}</style>
-    </div>
+            {/* Input Form */}
+            <form onSubmit={handleSubmit} className="p-5 border-t border-gray-200 bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
+              <div className="flex items-end gap-3">
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={`💭 Nhập tin nhắn về ${topics.find(t => t.value === topic)?.label}... (Enter để gửi, Shift+Enter để xuống dòng)`}
+                  className="flex-1 p-3.5 rounded-full border border-gray-300 resize-none text-sm leading-relaxed max-h-32 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-sans min-h-[56px]"
+                  rows={1}
+                  disabled={loading}
+                />
+                <button 
+                  type="submit" 
+                  disabled={loading || !message.trim()} 
+                  className={`w-14 h-14 rounded-full border-none flex items-center justify-center transition-all shadow-lg ${loading || !message.trim() ? 'bg-gray-500 cursor-not-allowed' : ttsSettings.autoPlay ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
+                  title={ttsSettings.autoPlay ? "Gửi & tự động phát âm" : "Gửi tin nhắn"}
+                >
+                  {loading ? (
+                    <div className="w-4.5 h-4.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <FaPaperPlane size={18} className="rotate-[-45deg]" />
+                  )}
+                </button>
+              </div>
+              {ttsSettings.autoPlay && (
+                <div className="mt-2 p-1.5 bg-green-100 rounded-full text-xs text-green-800 flex items-center gap-2">
+                  <FaVolumeUp size={12} />
+                  <span>Tự động phát với {ttsSettings.speed.toFixed(1)}x, {ttsSettings.repeat}x lần</span>
+                  <button
+                    onClick={() => updateTtsSetting('autoPlay', false)}
+                    className="ml-auto bg-none border-none text-inherit cursor-pointer p-0 w-4 h-4"
+                    title="Tắt auto-play"
+                  >
+                    <FaTimes size={12} />
+                  </button>
+                </div>
+              )}
+            </form>
+          </main>
+
+          <style jsx>{`
+            /* Custom range input thumb */
+            input[type="range"]::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              appearance: none;
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              background: #3b82f6;
+              cursor: pointer;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            input[type="range"]::-moz-range-thumb {
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              background: #3b82f6;
+              cursor: pointer;
+              border: none;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            /* Custom scrollbar */
+            ::-webkit-scrollbar {
+              width: 6px;
+            }
+            ::-webkit-scrollbar-track {
+              background: #f1f1f1;
+              border-radius: 3px;
+            }
+            ::-webkit-scrollbar-thumb {
+              background: #c1c1c1;
+              border-radius: 3px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+              background: #a8a8a8;
+            }
+          `}</style>
+        </div>
+    </>
+
+      
   );
 };
 

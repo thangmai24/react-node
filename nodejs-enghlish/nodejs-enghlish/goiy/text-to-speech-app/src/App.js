@@ -6,6 +6,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminPanel from './pages/AdminPanel';
 import Test from './pages/test';
+import Navbar from './test/Nav';
+import Notes from './test/Notes';
 function App() {
   return (
     <AuthProvider>
@@ -14,9 +16,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/profile" element={<AdminPanel />} />
           <Route path="/" element={<Login />} />
-          <Route path="/test" element={<Test />} />
+
+          // test routes
+          <Route path="/test/test" element={<Test />} />
+          <Route path="/test/nav" element={<Navbar />} />
+           <Route path="/test/note" element={<Notes />} />
         </Routes>
       </Router>
     </AuthProvider>
