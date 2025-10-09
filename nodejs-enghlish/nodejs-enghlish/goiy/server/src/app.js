@@ -16,14 +16,13 @@ const corsOptions = {
     "https://react-node-six.vercel.app",
     "http://localhost:3000"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // ✅ xử lý preflight (OPTIONS)
+
 app.use(express.json());
 
 // Routes
