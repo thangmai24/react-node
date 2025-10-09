@@ -12,7 +12,7 @@ connectDB();
 const app = express();
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: 'https://react-node-six.vercel.app',
   credentials: true,
   optionsSuccessStatus: 200
 };
