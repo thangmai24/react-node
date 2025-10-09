@@ -12,13 +12,18 @@ connectDB();
 const app = express();
 
 const corsOptions = {
-  origin: 'https://react-node-six.vercel.app',
+  origin: [
+    "https://react-node-six.vercel.app",
+    "http://localhost:3000"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-// app.use(cors());
+app.options("*", cors(corsOptions)); // ✅ xử lý preflight (OPTIONS)
 app.use(express.json());
 
 // Routes
