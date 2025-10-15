@@ -13,8 +13,7 @@ const app = express();
 
 const corsOptions = {
   origin: [
-    "https://react-node-six.vercel.app",
-    "http://localhost:3000"
+    process.env.CORS_ORIGIN ,'http://localhost:3000'
   ],
 
   credentials: true,

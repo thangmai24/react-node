@@ -30,7 +30,7 @@ const login = async (req, res) => {
     const payload = { id: user.id, name: user.name };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // res.json({ token });
+    res.json({ token });
   } catch (error) {
     res.status(500).json({ msg: 'Server error' });
   }
