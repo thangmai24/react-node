@@ -1,5 +1,7 @@
 npm init -y
 npm install express mongoose bcryptjs jsonwebtoken dotenv cors
+npm install express-validator
+
 npm install -D nodemon
 
 npx create-react-app client

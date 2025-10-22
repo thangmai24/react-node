@@ -5,14 +5,14 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const authMiddleware = require('./middlewares/authMiddleware');
-
+const noteRoutes = require('./routes/noteRoutes');
 dotenv.config();
 connectDB();
 
 const app = express();
 
 const corsOptions = {
-  origin: [
+  origin: [ 
     process.env.CORS_ORIGIN ,'http://localhost:3000'
   ],
 
@@ -29,6 +29,8 @@ app.use('/api/users', userRoutes);
 app.post('/api/verify', authMiddleware, (req, res) => {
   res.json({ valid: true, user: req.user });
 });
+
+app.use('/api/notes', noteRoutes);
 
 
 // Tạo object lưu lịch sử chat theo user
