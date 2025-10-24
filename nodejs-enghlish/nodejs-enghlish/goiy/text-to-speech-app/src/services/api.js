@@ -18,4 +18,14 @@ export const chatAPI = {
   sendMessage: (data) => API.post('/chat', data ),
 };
 
+// 📝 Notes API (RESTful)
+export const notesAPI = {
+  // getAll: () => API.get('/notes'),
+  // getById: (id) => API.get(`/notes/${id}`),
+  create: (data) => API.post('/notes', data),
+  // update: (id, data) => API.put(`/notes/${id}`, data),
+  // delete: (id) => API.delete(`/notes/${id}`),
+};
+
+
 export default API;

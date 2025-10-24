@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AiFillSignature } from "react-icons/ai";
 import { AiOutlinePlus } from "react-icons/ai";
-
+import { notesAPI } from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 const Notes = () => {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(null);
@@ -10,6 +11,8 @@ const Notes = () => {
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [image, setImage] = useState(null);
+  const [original, setOriginal] = useState("");
+  const [translate, setTranslate] = useState("");
 
   const navigate = useNavigate();
 
@@ -19,17 +22,25 @@ const Notes = () => {
     setOffset({
       x: e.clientX - position.x,
       y: e.clientY - position.y,
-      
+
     });
 
   };
 
   const handleMouseMove = (e) => {
     if (dragging) {
-      setPosition({
-        x: e.clientX - offset.x,
-        y: e.clientY - offset.y,
-      });
+      // Kích thước nút (đường kính = 48px ~ 12 * 4)
+      const buttonSize = 48;
+      const padding = 8; // chừa một khoảng an toàn
+
+      // Giới hạn trong khung nhìn
+      const maxX = window.innerWidth - buttonSize - padding;
+      const maxY = window.innerHeight - buttonSize - padding;
+
+      const newX = Math.min(Math.max(e.clientX - offset.x, padding), maxX);
+      const newY = Math.min(Math.max(e.clientY - offset.y, padding), maxY);
+
+      setPosition({ x: newX, y: newY });
     }
   };
 
@@ -37,11 +48,11 @@ const Notes = () => {
     setDragging(false);
   };
 
-  const handleSubmit = () => {
-    console.log("Ghi chú:", position.x, position.y);
-    alert("chức năng này chưa được phát triển!");
-    setOpen(false);
-  }
+  // const handleSubmit = () => {
+  //   console.log("Ghi chú:", position.x, position.y);
+  //   alert("chức năng này chưa được phát triển!");
+  //   setOpen(false);
+  // }
   useEffect(() => {
     if (dragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -64,6 +75,44 @@ const Notes = () => {
       reader.onloadend = () => setImage(reader.result);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleSubmit = async () => {
+    try {
+       let user_id = null; 
+       const token = localStorage.getItem('token');
+        if (token) {
+            const decoded = jwtDecode(token); // Giả sử bạn có thư viện jwt-decode
+             user_id = decoded.id;
+        }
+      if (!user_id) {
+        alert("Chưa đăng nhập!");
+        return;
+      }
+
+      const data = {
+        user_id: user_id,
+        original: note || "",
+        translate: note || "",
+        image: image || "",
+      };
+
+      const res = await notesAPI.create(data);
+      if (res.data) {
+        alert("✅ Ghi chú đã được lưu!");
+        setOpen(false);
+        setNote(null);
+        setImage(null);
+      }
+   } catch (err) {
+  console.error("Lỗi khi lưu ghi chú:", err);
+  if (err.response) {
+    console.error("📩 Response:", err.response.data);
+    alert(`❌ Lưu thất bại: ${err.response.data.message || "Lỗi server"}`);
+  } else {
+    alert("❌ Không thể kết nối tới server!");
+  }
+}
   };
 
   return (
@@ -100,17 +149,18 @@ const Notes = () => {
           <h3 className="font-bold mb-2">Ghi chú</h3>
           <div className="flex gap-2 mb-3">
             <input
-              value={note || ""}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Nhập ghi chú..."
+              value={original}
+              onChange={(e) => setOriginal(e.target.value)}
+              placeholder="Nhập original..."
               className="border rounded p-2 h-7 flex-1"
             />
             <input
-              value={note || ""}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Nhập ghi chú..."
+              value={translate}
+              onChange={(e) => setTranslate(e.target.value)}
+              placeholder="Nhập translate..."
               className="border rounded p-2 h-7 flex-1"
             />
+
           </div>
 
           {/* Vùng thêm ảnh */}

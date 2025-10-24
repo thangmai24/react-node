@@ -4,8 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { chatAPI, authAPI } from '../services/api';
 import { FaVolumeUp, FaPaperPlane, FaCog, FaUndo, FaTimes } from 'react-icons/fa';
 import { TextWithHoverTranslate } from './test';
-import  Navbar from '../test/Nav';
-import Notes from '../test/Notes';
+import  Navbar from '../component/Nav';
+import Notes from '../component/Notes';
 const Dashboard = () => {
 
 
@@ -242,54 +242,16 @@ useEffect(() => {
     <>
     <Notes />
  <Navbar />
-     <div className="flex h-[calc(100vh-64px)] font-sans mt-[24px]">
+     <div className="flex h-[calc(100vh-64px)] font-sans ">
    
 
  
-          {/* Sidebar */}
-          <aside className="w-[280px] p-5 bg-gray-100 border-r border-gray-200 overflow-y-auto ">
-            <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-700">Luyen tap tong hop</h3>
-            </div>
-
-            {/* Topic Selection */}
-            <div className="mb-5">
-              <label className="block mb-2 font-semibold text-sm text-gray-700">🎯 Chủ đề giao tiếp:</label>
-              <select 
-                value={topic} 
-                onChange={(e) => setTopic(e.target.value)} 
-                className="w-full p-2.5 rounded-md border border-gray-300 bg-white text-sm cursor-pointer"
-              >
-                {topics.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Logout Button */}
-            <div 
-              className="mt-5 p-3 bg-red-100 text-red-800 rounded-lg text-center cursor-pointer border border-red-200 transition-colors hover:bg-red-200"
-              onClick={logout}
-            >
-              🚪 Logout
-            </div>
-
-            {/* TTS Status */}
-            <div className={`mt-5 p-3 rounded-md border text-xs ${'speechSynthesis' in window ? 'bg-green-100 border-green-200 text-green-800' : 'bg-red-100 border-red-200 text-red-800'}`}>
-              <strong>TTS Status:</strong><br/>
-              {'speechSynthesis' in window ? '✅ Được hỗ trợ' : '❌ Không hỗ trợ'}
-              {'speechSynthesis' in window && (
-                <div className="mt-1 text-[11px] opacity-80">
-                  Voices loaded: {speechSynthesis.getVoices().length}
-                </div>
-              )}
-            </div>
-          </aside>
+        
 
           {/* Main Chat Area */}
-          <main className="flex-1 flex flex-col">
+          <main className="flex-1 flex flex-col mx-0 md:mx-[12%]">
             {/* Header */}
-            <header className="p-5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md">
+            <header className="p-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl font-bold">🤖 AI Conversation Assistant</h1>
@@ -298,6 +260,19 @@ useEffect(() => {
                     {ttsSettings.autoPlay && <span className="ml-3 px-2 py-1 bg-white/20 rounded-full text-xs">🔊 Auto-play ON</span>}
                   </p>
                 </div>
+                {/* Topic Selection */}
+            <div className="mb-5">
+              <label className="block mb-2 font-semibold text-sm ">🎯 Chủ đề giao tiếp:</label>
+              <select 
+                value={topic} 
+                onChange={(e) => setTopic(e.target.value)} 
+                className="w-full p-2.5 rounded-md border border-gray-300 bg-white text-sm cursor-pointer !text-black"
+              >
+                {topics.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
                 <div 
                   className="p-2 bg-white/20 rounded-full cursor-pointer hover:bg-white/30 transition-all"
                  

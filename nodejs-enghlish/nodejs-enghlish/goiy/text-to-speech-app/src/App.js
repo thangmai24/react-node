@@ -6,8 +6,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminPanel from './pages/AdminPanel';
 import Test from './pages/test';
-import Navbar from './test/Nav';
-import Notes from './test/Notes';
+import Navbar from './component/Nav';
+import Notes from './component/Notes';
 function App() {
   return (
     <AuthProvider>

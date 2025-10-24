@@ -58,7 +58,7 @@ const Navbar = () => {
             <ul className="hidden md:flex space-x-6 text-gray-600 font-medium">
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Home</li>
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Dashboard</li>
-                <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Settings</li>
+                <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Contact</li>
             </ul>
 
             {/* Avatar + Tên tài khoản */}
