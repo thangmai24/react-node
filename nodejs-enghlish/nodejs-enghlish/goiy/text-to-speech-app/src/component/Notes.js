@@ -15,6 +15,9 @@ const Notes = () => {
   const [translate, setTranslate] = useState("");
 
   const navigate = useNavigate();
+  const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+
 
   const handleMouseDown = (e) => {
     if (e.button !== 0) return; // chỉ kéo bằng chuột trái
@@ -79,41 +82,60 @@ const Notes = () => {
 
   const handleSubmit = async () => {
     try {
-       let user_id = null; 
-       const token = localStorage.getItem('token');
-        if (token) {
-            const decoded = jwtDecode(token); // Giả sử bạn có thư viện jwt-decode
-             user_id = decoded.id;
-        }
+      let user_id = null;
+      const token = localStorage.getItem("token");
+      if (token) {
+        const decoded = jwtDecode(token);
+        user_id = decoded.id;
+      }
+
       if (!user_id) {
         alert("Chưa đăng nhập!");
         return;
       }
 
-      const data = {
-        user_id: user_id,
-        original: note || "",
-        translate: note || "",
-        image: image || "",
+      let imageUrl = "";
+  
+      // Nếu có ảnh → upload lên Cloudinary
+      if (image) {
+        const formData = new FormData();
+        formData.append("file", image);
+        formData.append("upload_preset", uploadPreset); // 👈 preset bạn tạo
+
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/dk40jam2m/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const data = await res.json();
+        imageUrl = data.secure_url; // ✅ Đường dẫn ảnh trên Cloudinary
+      }
+
+      // Gửi URL đến server
+      const body = {
+        user_id,
+        original,
+        translate,
+        image: imageUrl,
       };
 
-      const res = await notesAPI.create(data);
-      if (res.data) {
+      const resNote = await notesAPI.create(body);
+
+      if (resNote.data) {
         alert("✅ Ghi chú đã được lưu!");
         setOpen(false);
-        setNote(null);
+        setOriginal("");
+        setTranslate("");
         setImage(null);
       }
-   } catch (err) {
-  console.error("Lỗi khi lưu ghi chú:", err);
-  if (err.response) {
-    console.error("📩 Response:", err.response.data);
-    alert(`❌ Lưu thất bại: ${err.response.data.message || "Lỗi server"}`);
-  } else {
-    alert("❌ Không thể kết nối tới server!");
-  }
-}
+    } catch (err) {
+      console.error("Lỗi khi lưu ghi chú:", err);
+      alert("❌ Lưu thất bại!");
+    }
   };
+
 
   return (
     <>

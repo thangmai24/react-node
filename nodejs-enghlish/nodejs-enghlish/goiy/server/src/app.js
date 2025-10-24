@@ -7,6 +7,8 @@ const userRoutes = require('./routes/userRoutes');
 const authMiddleware = require('./middlewares/authMiddleware');
 const noteRoutes = require('./routes/noteRoutes');
 dotenv.config();
+
+require('./config/cloudinary');
 connectDB();
 
 const app = express();

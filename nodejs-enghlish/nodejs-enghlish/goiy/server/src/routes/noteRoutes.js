@@ -13,7 +13,7 @@ const router = express.Router();
 
 // CREATE
 router.post(
-  '/create',
+  '/',
   [
     body('user_id').notEmpty().withMessage('user_id is required'),
     body('translate').optional().isString().withMessage('translate must be string'),
