@@ -24,7 +24,7 @@ router.post(
 );
 
 // READ ALL
-router.get('/', getNotes);
+router.post('/show', getNotes);
 
 // READ ONE
 router.get('/:id', param('id').isMongoId().withMessage('Invalid note ID'), getNoteById);

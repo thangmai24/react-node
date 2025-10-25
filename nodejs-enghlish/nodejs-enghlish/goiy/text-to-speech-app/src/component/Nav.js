@@ -26,7 +26,7 @@ const Navbar = () => {
         alert("chức năng này chưa được phát triển!");
     }
     return (
-        <nav className="bg-white shadow-md px-6 py-3 flex items-center justify-between sticky top-0 z-1000">
+        <nav className="bg-white shadow-md px-6 py-3 flex items-center justify-between sticky top-0 z-[10000]">
             {/* Logo + App Name */}
             <div className="flex items-center space-x-2">
                 <div
@@ -58,6 +58,7 @@ const Navbar = () => {
             <ul className="hidden md:flex space-x-6 text-gray-600 font-medium">
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Home</li>
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Dashboard</li>
+                <li className="hover:text-blue-500 cursor-pointer" onClick={() => navigate('/Notes')}>Notes</li>
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Contact</li>
             </ul>
 

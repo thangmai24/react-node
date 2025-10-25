@@ -8,6 +8,7 @@ import AdminPanel from './pages/AdminPanel';
 import Test from './pages/test';
 import Navbar from './component/Nav';
 import Notes from './component/Notes';
+import ManegerNotes from './pages/ManegerNotes';
 function App() {
   return (
     <AuthProvider>
@@ -18,11 +19,12 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<AdminPanel />} />
           <Route path="/" element={<Login />} />
-
+          <Route path="/notes" element={<ManegerNotes />} />
           // test routes
           <Route path="/test/test" element={<Test />} />
           <Route path="/test/nav" element={<Navbar />} />
-           <Route path="/test/note" element={<Notes />} />
+          <Route path="/test/note" element={<Notes />} />
+
         </Routes>
       </Router>
     </AuthProvider>

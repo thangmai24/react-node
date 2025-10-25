@@ -20,7 +20,7 @@ export const chatAPI = {
 
 // 📝 Notes API (RESTful)
 export const notesAPI = {
-  // getAll: () => API.get('/notes'),
+  getAll: (data) => API.post('/notes/show', data),
   // getById: (id) => API.get(`/notes/${id}`),
   create: (data) => API.post('/notes', data),
   // update: (id, data) => API.put(`/notes/${id}`, data),
