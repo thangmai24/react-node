@@ -10,6 +10,7 @@ import Navbar from './component/Nav';
 import Notes from './component/Notes';
 import ManegerNotes from './pages/ManegerNotes';
 function App() {
+  
   return (
     <AuthProvider>
       <Router>

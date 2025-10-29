@@ -32,7 +32,7 @@ app.post('/api/verify', authMiddleware, (req, res) => {
   res.json({ valid: true, user: req.user });
 });
 
-app.use('/api/notes', noteRoutes);
+app.use('/api/notes', authMiddleware, noteRoutes);
 
 
 // Tạo object lưu lịch sử chat theo user

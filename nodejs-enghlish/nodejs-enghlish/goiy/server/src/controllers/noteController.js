@@ -10,21 +10,36 @@ export const createNote = async (req, res) => {
   if (!errors.isEmpty()) return res.status(400).json({ msg: errors.array()[0].msg });
   console.log("🌥️ Cloud name:", process.env.CLOUDINARY_CLOUD_NAME);
   try {
-    const { user_id, translate, original, image } = req.body;
+    const { translate, original, image } = req.body;
+
 
     let imageUrl = '';
+    let uploadResult = null;
+    const public_id = `note_${req.user.id}_${Date.now()}`;
     if (image) {
-      const uploadResult = await cloudinary.uploader.upload(image, {
+        uploadResult = await cloudinary.uploader.upload(image, {
         folder: 'notes_images',
+        public_id: public_id, // đặt public_id tùy ý
+        overwrite: true, // cho phép ghi đè khi upload lại
+        invalidate: true // xóa cache cũ nếu có
       });
       imageUrl = uploadResult.secure_url;
     }
+ // ✅ Kiểm tra duplicate
+    const existingNote = await Note.findOne({
+      user_id: req.user.id,
+      original: original.trim(),
+    });
+    if (existingNote) {
+      return res.status(400).json({ msg: 'Note already exists for this user' });
+    }
 
     const note = new Note({
-      user_id,
+      user_id: req.user.id,
       translate,
       original,
       image: imageUrl,
+      public_id: uploadResult.public_id,
     });
 
     await note.save();
