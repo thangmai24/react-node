@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { chatAPI, authAPI } from '../services/api';
 import { FaVolumeUp, FaPaperPlane, FaCog, FaUndo, FaTimes } from 'react-icons/fa';
-import { TextWithHoverTranslate } from './test';
+// import { TextWithHoverTranslate } from './test';
 import  Navbar from '../component/Nav';
 import Notes from '../component/Notes';
 const Dashboard = () => {
@@ -16,7 +16,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [showTtsSettings, setShowTtsSettings] = useState(false);
   const messagesEndRef = useRef(null);
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  // const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   useEffect(() => {
     const checkToken = async () => {

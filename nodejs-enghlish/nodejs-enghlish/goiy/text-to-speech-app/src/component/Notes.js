@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AiFillSignature } from "react-icons/ai";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -6,7 +6,7 @@ import { notesAPI } from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 const Notes = () => {
   const [open, setOpen] = useState(false);
-  const [note, setNote] = useState(null);
+  // const [note, setNote] = useState(null);
   const [position, setPosition] = useState({ x: 100, y: 600 });
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -14,8 +14,8 @@ const Notes = () => {
   const [original, setOriginal] = useState("");
   const [translate, setTranslate] = useState("");
 
-  const navigate = useNavigate();
-  const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  // const navigate = useNavigate();
+  // const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
 
@@ -30,7 +30,7 @@ const Notes = () => {
 
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (dragging) {
       // Kích thước nút (đường kính = 48px ~ 12 * 4)
       const buttonSize = 48;
@@ -45,11 +45,11 @@ const Notes = () => {
 
       setPosition({ x: newX, y: newY });
     }
-  };
+  }, [dragging, offset]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setDragging(false);
-  };
+  }, []);
 
   // const handleSubmit = () => {
   //   console.log("Ghi chú:", position.x, position.y);
@@ -68,7 +68,7 @@ const Notes = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [dragging]);
+  }, [dragging, handleMouseMove, handleMouseUp]);
 
   // chọn file ảnh
   const handleImageChange = (e) => {
