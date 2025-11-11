@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { BookOpen, Languages, Plus, Trash2, Edit2, Image, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { notesAPI } from '../services/api';
-import { jwtDecode } from 'jwt-decode';
+// import { jwtDecode } from 'jwt-decode';
 
 import Navbar from '../component/Nav';
 import { useNavigate } from 'react-router-dom';

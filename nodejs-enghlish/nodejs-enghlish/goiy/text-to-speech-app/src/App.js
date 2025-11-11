@@ -23,7 +23,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/notes" element={<ManegerNotes />} />
            <Route path="/contact" element={<ContactPage />} />
-          // test routes
+          {/* test routes */}
           <Route path="/test/test" element={<Test />} />
           <Route path="/test/nav" element={<Navbar />} />
           <Route path="/test/note" element={<Notes />} />
