@@ -7,6 +7,10 @@ import Navbar from '../component/Nav';
 import { useNavigate } from 'react-router-dom';
 import { checkAuth } from "../utils/auth";
 export default function NotesApp() {
+  const updatedAt = new Date();
+  const [imageFile, setImageFile] = useState(null);
+  const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const [notes, setNotes] = useState([
 
   ]);
@@ -28,7 +32,8 @@ export default function NotesApp() {
           translate: note.translate || "",
           img: note.image && note.image.startsWith('http')
             ? note.image
-            : "image/logo.png"
+            : "image/logo.png",
+           version: note.version, // ✅ thêm dòng này
 
         }));
         setNotes(formattedNotes);
@@ -63,44 +68,78 @@ export default function NotesApp() {
     });
   };
 
-  const handleSubmit = () => {
-    if (!formData.original || !formData.translate || !formData.img) {
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!formData.original || !formData.translate) return;
 
-    if (editingId) {
-      setNotes(notes.map(note =>
-        note.id === editingId
-          ? { ...note, ...formData }
-          : note
-      ));
-      setEditingId(null);
-    } else {
-      const newNote = {
-        id: Date.now(),
-        ...formData
-      };
-      setNotes([...notes, newNote]);
-    }
+    try {
+      let imageUrl = formData.img;
+      if (imageFile) {
+        imageUrl = await uploadToCloudinary();
+      }
 
-    setFormData({ original: '', translate: '', img: '' });
-    setIsAdding(false);
+      if (editingId) {
+        const res = await notesAPI.update(editingId, {
+          original: formData.original,
+          translate: formData.translate,
+          image: imageUrl,
+          version: formData.version,
+        });
+        console.log("formData.updatedAt:", formData.version);
+        console.log("res update:", res, formData.updatedAt);
+        setNotes(notes.map(note => note.id === editingId ? {
+          ...note,
+          original: res.data.original,
+          translate: res.data.translate,
+          img: res.data.image,
+        } : note));
+        setEditingId(null);
+      } else {
+        const user_id = checkAuth(navigate);
+        const res = await notesAPI.create({
+          original: formData.original,
+          translate: formData.translate,
+          image: imageUrl,
+          user_id,
+        });
+        setNotes([...notes, {
+          id: res.data._id,
+          original: res.data.original,
+          translate: res.data.translate,
+          img: res.data.image,
+        }]);
+      }
+
+      setFormData({ original: '', translate: '', img: '' });
+      setImageFile(null);
+      setIsAdding(false);
+    } catch (err) {
+      console.error("Lỗi khi lưu note:", err);
+      alert("Không thể lưu ghi chú!");
+    }
   };
 
   const handleEdit = (note) => {
     setEditingId(note.id);
+    console.log("note", note);
     setFormData({
       original: note.original,
       translate: note.translate,
-      img: note.img
+      img: note.img,
+      version: note.version,
     });
     setIsAdding(true);
   };
 
-  const handleDelete = (id) => {
-    setNotes(notes.filter(note => note.id !== id));
-    if (currentSlide >= notes.length - 1) {
-      setCurrentSlide(Math.max(0, notes.length - 2));
+  const handleDelete = async (id) => {
+    try {
+      await notesAPI.delete(id); // 🔥 Gọi API xóa trên server
+      setNotes(notes.filter(note => note.id !== id)); // Xóa khỏi state FE
+      if (currentSlide >= notes.length - 1) {
+        setCurrentSlide(Math.max(0, notes.length - 2));
+      }
+    } catch (err) {
+      console.error("Lỗi khi xóa note:", err);
+      alert("Không thể xóa note. Vui lòng thử lại!");
     }
   };
 
@@ -125,6 +164,32 @@ export default function NotesApp() {
     setCurrentSlide((prev) => (prev - 1 + notes.length) % notes.length);
   };
 
+  // Chọn file ảnh
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setFormData({ ...formData, img: reader.result });
+      reader.readAsDataURL(file);
+      setImageFile(file);
+    }
+  };
+
+  // Upload ảnh lên Cloudinary
+  const uploadToCloudinary = async () => {
+    if (!imageFile) return null;
+
+    const formDataCloud = new FormData();
+    formDataCloud.append("file", imageFile);
+    formDataCloud.append("upload_preset", uploadPreset);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: "POST",
+      body: formDataCloud,
+    });
+    const data = await res.json();
+    return data.secure_url;
+  };
   return (
     <>
       <Navbar />
@@ -144,13 +209,7 @@ export default function NotesApp() {
                   <Settings className="w-5 h-5" />
                   Cài đặt
                 </button>
-                <button
-                  onClick={() => setIsAdding(!isAdding)}
-                  className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Thêm
-                </button>
+
               </div>
             </div>
 
@@ -226,15 +285,39 @@ export default function NotesApp() {
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL Hình ảnh
+                    Hình ảnh
                   </label>
+
+                  {formData.img ? (
+                    <div className="relative">
+                      <img
+                        src={formData.img}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-lg border mb-2"
+                      />
+                      <button
+                        onClick={() => setFormData({ ...formData, img: '' })}
+                        className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-xs"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="upload"
+                      className="w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50"
+                    >
+                      <Image className="w-6 h-6 text-gray-500" />
+                      <span className="text-sm text-gray-500 mt-1">Thêm hình</span>
+                    </label>
+                  )}
+
                   <input
-                    type="text"
-                    name="img"
-                    value={formData.img}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="https://example.com/image.jpg"
+                    type="file"
+                    id="upload"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
                   />
                 </div>
 
@@ -275,7 +358,7 @@ export default function NotesApp() {
                             <div className="h-80 overflow-hidden relative ">
                               <h2 className='absolute inset-0 -z-10 flex justify-center items-center text-4xl border border-white'>hidden</h2>
                               {displaySettings.showImage && note.img && (
-                                console.log("note.img:", note.img),
+
                                 <img
                                   src={note.img}
                                   alt="Note"

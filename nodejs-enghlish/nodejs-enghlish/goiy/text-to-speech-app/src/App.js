@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminPanel from './pages/AdminPanel';
 import Test from './pages/test';
+import ContactPage from './pages/Contact';
 import Navbar from './component/Nav';
 import Notes from './component/Notes';
 import ManegerNotes from './pages/ManegerNotes';
@@ -21,6 +22,7 @@ function App() {
           <Route path="/profile" element={<AdminPanel />} />
           <Route path="/" element={<Login />} />
           <Route path="/notes" element={<ManegerNotes />} />
+           <Route path="/contact" element={<ContactPage />} />
           // test routes
           <Route path="/test/test" element={<Test />} />
           <Route path="/test/nav" element={<Navbar />} />

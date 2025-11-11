@@ -59,7 +59,7 @@ const Navbar = () => {
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Home</li>
                 <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Dashboard</li>
                 <li className="hover:text-blue-500 cursor-pointer" onClick={() => navigate('/Notes')}>Notes</li>
-                <li className="hover:text-blue-500 cursor-pointer" onClick={handleSubmit}>Contact</li>
+                <li className="hover:text-blue-500 cursor-pointer" onClick={() => navigate('/contact')}>Contact</li>
             </ul>
 
             {/* Avatar + Tên tài khoản */}
