@@ -1,133 +1,185 @@
 const Chat = require('../models/Chat');
 const jwt = require('jsonwebtoken');
 
-// Lịch sử chat lưu trong RAM theo từng user
-const chatHistory = {}; 
-let r = 0;
+// =====================================
+// 🔥 RAM STORAGE + AUTO EXPIRE
+// =====================================
+const chatHistory = new Map();
 
-const MAX_HISTORY = 20; // số lượng tin tối đa lưu trong RAM
+const HISTORY_LIMIT = 20;                // tối đa 20 tin
+const EXPIRATION_TIME = 5 * 60 * 1000;   // 5 phút
 
-// System prompts tối ưu
+// Auto cleanup mỗi phút
+setInterval(() => {
+  const now = Date.now();
+  for (const [userId, data] of chatHistory.entries()) {
+    if (data.expiresAt < now) {
+      chatHistory.delete(userId);
+    }
+  }
+}, 60 * 1000);
+
+// =====================================
+// 🔥 SYSTEM PROMPTS (role = user)
+// =====================================
 const systemPrompts = {
   school: `
 You are a friendly school counselor.
 Keep responses short, natural, supportive, and focused on the main idea.
-Always use previous conversation context to understand the user's intent.
-Assume each new message is connected to earlier ones unless stated otherwise.
-Do not repeat user words unnecessarily.
+Always use previous conversation context.
 Answer in English.
 `,
 
   work: `
 You are a career advisor.
 Keep responses concise, practical, and focused on the main point.
-Always rely on earlier messages to interpret new questions.
-Assume each new message continues from previous context.
-Avoid repeating user content unless necessary.
+Use earlier messages for context.
 Answer in English.
 `,
 
   daily: `
 You are a casual, friendly companion.
-Keep responses short, natural, warm, and conversation-like.
-Always depend on earlier messages to understand user intent.
-Assume new messages relate to the previous context unless clearly unrelated.
-Do not repeat user words unnecessarily.
+Keep responses warm and natural.
+Use conversation history.
 Answer in English.
 `
 };
 
+// =====================================
+// 🔥 MAIN CHAT CONTROLLER
+// =====================================
 const sendChat = async (req, res) => {
   try {
     const { message, topic } = req.body;
 
-    // Lấy token và decode user ID
-    const token = req.headers.authorization?.split(' ')[1];
+    // Lấy user ID từ JWT
+    const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    // Nếu chưa có lịch sử thì tạo mới
-    if (!chatHistory[userId]) {
-      chatHistory[userId] = [];
+    // =====================================
+    // TẠO HOẶC LẤY LỊCH SỬ
+    // =====================================
+    let historyData = chatHistory.get(userId);
+
+    if (!historyData) {
+      historyData = {
+        messages: [],
+        expiresAt: Date.now() + EXPIRATION_TIME
+      };
+      chatHistory.set(userId, historyData);
     }
 
-    // ---- Thêm system prompt vào đầu nếu lịch sử trống ----
-    if (chatHistory[userId].length === 0) {
-      const systemPrompt =
-        systemPrompts[topic] ||
-        `Keep responses short, natural, and based on previous conversation context. Answer in English.`;
+    const history = historyData.messages;
 
-      chatHistory[userId].push({
-        role: 'system',
-        text: systemPrompt
+    // =====================================
+    // THÊM SYSTEM PROMPT DƯỚI ROLE USER
+    // =====================================
+    if (history.length === 0) {
+      history.push({
+        role: "user",  // Gemini ONLY supports "user" & "model"
+        text: systemPrompts[topic] || `Keep responses short and use context.`
       });
     }
 
-    // ---- Thêm tin user vào lịch sử ----
-    chatHistory[userId].push({
-      role: 'user',
+    // =====================================
+    // THÊM USER MESSAGE
+    // =====================================
+    history.push({
+      role: "user",
       text: message
     });
 
-    // ---- Giới hạn số lượng tin ----
-    if (chatHistory[userId].length > MAX_HISTORY) {
-      chatHistory[userId] = chatHistory[userId].slice(-MAX_HISTORY);
+    // Giới hạn số tin
+    if (history.length > HISTORY_LIMIT) {
+      history.splice(0, history.length - HISTORY_LIMIT);
     }
 
-    // ---- Xoay vòng API key ----
-    const keys = JSON.parse(process.env.GEMINI_API_KEY || '[]');
-    r = (r + 1) % keys.length;
+    // Reset thời gian sống
+    historyData.expiresAt = Date.now() + EXPIRATION_TIME;
 
-    // ---- Convert lịch sử sang format Gemini ----
-    const geminiMessages = chatHistory[userId].map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
+    // =====================================
+    // CHUẨN BỊ DỮ LIỆU GỬI LÊN GEMINI
+    // =====================================
+    const geminiMessages = history.map(m => ({
+      role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.text }]
     }));
 
-    // ---- Gọi Gemini API ----
+    // Lấy API key ngẫu nhiên
+    const keys = JSON.parse(process.env.GEMINI_API_KEY || "[]");
+    if (!keys.length) throw new Error("Missing Gemini API Keys");
+
+    const key = keys[Math.floor(Math.random() * keys.length)];
+
+    // =====================================
+    // CALL GEMINI API
+    // =====================================
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${keys[r]}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${key}`,
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: geminiMessages
-        })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: geminiMessages })
       }
     );
 
+    // HTTP lỗi
+    if (!response.ok) {
+      const text = await response.text();
+
+      console.error("🔥 GEMINI HTTP ERROR");
+      console.error("Status:", response.status);
+      console.error("StatusText:", response.statusText);
+      console.error("Details:", text);
+
+      return res.status(500).json({
+        msg: "Gemini HTTP Error",
+        status: response.status,
+        statusText: response.statusText,
+        details: text
+      });
+    }
+
     const data = await response.json();
 
+    // Lỗi JSON từ Gemini
+    if (data.error) {
+      return res.status(500).json({
+        msg: "Gemini API Error",
+        error: data.error.message,
+        raw: data.error
+      });
+    }
+
+    // Không có câu trả lời
     if (!data.candidates || data.candidates.length === 0) {
-      return res.status(500).json({ msg: 'No response from Gemini API' });
+      return res.status(500).json({
+        msg: "Gemini returned no candidates",
+        raw: data
+      });
     }
 
     const aiReply = data.candidates[0].content.parts[0].text;
 
-    // ---- Lưu câu trả lời AI vào history ----
-    chatHistory[userId].push({
-      role: 'assistant',
+    // =====================================
+    // LƯU TRẢ LỜI AI
+    // =====================================
+    history.push({
+      role: "assistant",
       text: aiReply
     });
 
-    // ---- Giới hạn lại (phòng trường hợp API trả về dài) ----
-    if (chatHistory[userId].length > MAX_HISTORY) {
-      chatHistory[userId] = chatHistory[userId].slice(-MAX_HISTORY);
+    if (history.length > HISTORY_LIMIT) {
+      history.splice(0, history.length - HISTORY_LIMIT);
     }
 
-    return res.json({
-      reply: aiReply,
-      key: r
-    });
+    return res.json({ reply: aiReply });
 
-  } catch (error) {
-    console.error('Gemini API error:', error);
-    res.status(500).json({ msg: 'AI service error' });
+  } catch (err) {
+    console.error("🔥 Gemini Error:", err);
+    return res.status(500).json({ msg: "AI service error" });
   }
 };
 
-module.exports = {
-  sendChat
-};
+module.exports = { sendChat };
