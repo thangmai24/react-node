@@ -1,0 +1,82 @@
+// controllers/otpController.js
+const nodemailer = require('nodemailer');
+const OtpModel = require('../models/OtpModel');
+const UserModel = require('../models/User'); // Giả sử bạn có model User để kiểm tra email tồn tại
+
+// Cấu hình Transporter (Người đưa thư)
+// Lưu ý: Nếu dùng Gmail, bạn phải dùng "App Password" chứ không phải mật khẩu đăng nhập thường.
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // Email của bạn (trong .env)
+    pass: process.env.EMAIL_PASS, // Mật khẩu ứng dụng (trong .env)
+  },
+});
+
+// Hàm tạo mã OTP ngẫu nhiên 6 chữ số
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+exports.sendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // 1. Kiểm tra user có tồn tại không (Tuỳ logic dự án)
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'Email không tồn tại trong hệ thống' });
+    }
+
+    // 2. Tạo mã OTP
+    const otpCode = generateOTP();
+
+    // 3. Lưu OTP vào Database (Dùng upsert để nếu email này đã có OTP cũ thì ghi đè)
+    // Lưu ý: Trong thực tế nên Hash OTP trước khi lưu để bảo mật (giống mật khẩu)
+    await OtpModel.findOneAndUpdate(
+      { email }, 
+      { otp: otpCode, createdAt: new Date() }, 
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    // 4. Cấu hình nội dung email
+    const mailOptions = {
+      from: `"Support Team" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Mã xác thực OTP của bạn',
+      html: `
+        <h3>Mã xác thực OTP</h3>
+        <p>Mã của bạn là: <b style="font-size: 24px; color: blue;">${otpCode}</b></p>
+        <p>Mã này sẽ hết hạn sau 5 phút.</p>
+      `,
+    };
+
+    // 5. Gửi mail
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: 'Đã gửi OTP thành công, vui lòng kiểm tra email' });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Lỗi gửi email', error: error.message });
+  }
+};
+
+// Hàm verify OTP (để bạn dùng ở bước sau)
+exports.verifyOtp = async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const validOtp = await OtpModel.findOne({ email, otp });
+        if (!validOtp) {
+            return res.status(400).json({ message: 'Mã OTP không đúng hoặc đã hết hạn' });
+        }
+        
+        // Nếu đúng thì xóa OTP đi để không dùng lại được nữa
+        await OtpModel.deleteOne({ email });
+        
+        // Tiến hành các bước tiếp theo (ví dụ: đổi mật khẩu, verify tài khoản...)
+        return res.status(200).json({ message: 'Xác thực thành công' });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}

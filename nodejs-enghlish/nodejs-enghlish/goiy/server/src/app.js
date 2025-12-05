@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const authMiddleware = require('./middlewares/authMiddleware');
 const noteRoutes = require('./routes/noteRoutes');
 const { sendChat } = require('./controllers/chatController');
+const otpRoutes = require('./routes/otpRoutes');
 dotenv.config();
 
 
@@ -39,4 +40,6 @@ app.use('/api/notes', authMiddleware, noteRoutes);
 // Protected chat route
 app.post('/api/chat', authMiddleware, sendChat);
 
+
+app.use('/api/otp', otpRoutes);
 module.exports = app;

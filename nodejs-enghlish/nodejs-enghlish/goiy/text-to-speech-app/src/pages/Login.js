@@ -2,14 +2,16 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { authAPI } from '../services/api';
+import Button from '../component/Button';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-
+const [loading, setLoading] = useState(false); 
   useEffect(() => {
+    
     const checkToken = async () => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -28,12 +30,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { data } = await authAPI.login({ email, password });
       login(data.token);
       navigate('/dashboard');
     } catch (error) {
       alert('Login failed: ' + error.response?.data?.msg);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -57,12 +62,13 @@ const Login = () => {
           required
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button 
-          type="submit" 
+        <Button 
+          type="submit"
+          loading={loading} 
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Login
-        </button>
+        </Button>
       </form>
       <p className="mt-4 text-center text-gray-600">
         Don&apos;t have an account?{' '}

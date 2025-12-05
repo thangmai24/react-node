@@ -14,3 +14,17 @@ code {
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+.ai-title {
+  font-size: 1.125rem;
+}
+@media (min-width: 640px) {
+  .ai-title {
+    font-size: 1.25rem;
+  }
+}
+@media (min-width: 768px) {
+  .ai-title {
+    font-size: 1.5rem;
+  }
+}
