@@ -9,7 +9,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const refreshCookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: 'lax',
+  sameSite: 'none',
   maxAge: REFRESH_TTL_SECONDS * 1000,
   path: '/api/users'
 };
