@@ -10,7 +10,10 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(401).json({ msg: 'Token is not valid' });
 
-    req.user = user;
+    // Attach a sanitized user object (remove password)
+    const userObj = user.toObject ? user.toObject() : { ...user };
+    if (userObj.password) delete userObj.password;
+    req.user = userObj;
     next();
   } catch (error) {
     res.status(401).json({ msg: 'Token is not valid' });

@@ -1,6 +1,9 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
@@ -8,7 +11,6 @@ const authMiddleware = require('./middlewares/authMiddleware');
 const noteRoutes = require('./routes/noteRoutes');
 const { sendChat } = require('./controllers/chatController');
 const otpRoutes = require('./routes/otpRoutes');
-dotenv.config();
 
 
 require('./config/cloudinary');
@@ -16,16 +18,29 @@ connectDB();
 
 const app = express();
 
-const corsOptions = {
-  origin: [ 
-    process.env.CORS_ORIGIN 
-  ],
+// Parse env var into an array of allowed origins
+const rawOrigins = process.env.CORS_ORIGIN || '';
+const allowedOrigins = rawOrigins.split(',').map(s => s.trim()).filter(Boolean);
 
+// Cors options with per-request origin check
+const corsOptions = {
+  origin: (origin, callback) => {
+   
+    if (!origin) return callback(null, true);
+
+  
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS error: origin ${origin} not allowed`));
+  },
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 app.use(express.json());
 

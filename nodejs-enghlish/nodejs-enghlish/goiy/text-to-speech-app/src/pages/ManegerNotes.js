@@ -38,7 +38,8 @@ export default function NotesApp() {
   // 🔑 HÀM TÁI SỬ DỤNG: Tải lại toàn bộ Notes từ Server
   const fetchNotes = useCallback(async () => {
     try {
-      const user_id = checkAuth(navigate);
+      const user_id = await checkAuth(navigate);
+      if (!user_id) return false; // user not authenticated or refresh failed
 
       const resNote = await notesAPI.getAll({ user_id });
       console.log("resNote:", resNote);
