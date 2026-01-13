@@ -60,7 +60,7 @@ const Notes = () => {
     });
   };
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = useCallback((e) => {
     if (!dragging) return;
 
     const touch = e.touches[0];
@@ -74,9 +74,9 @@ const Notes = () => {
     const newY = Math.min(Math.max(touch.clientY - offset.y, padding), maxY);
 
     setPosition({ x: newX, y: newY });
-  };
+  }, [dragging, offset, isMobile]);
 
-  const handleTouchEnd = () => setDragging(false);
+  const handleTouchEnd = useCallback(() => setDragging(false), []);
 
   // Add desktop events
   useEffect(() => {
@@ -101,7 +101,7 @@ const Notes = () => {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [dragging, handleMouseMove, handleMouseUp]);
+  }, [dragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   // ---- Upload ảnh ---- //
   const handleImageChange = (e) => {
@@ -196,7 +196,7 @@ const Notes = () => {
         >
           <h3 className="font-bold mb-2">Ghi chú</h3>
 
-          <div className={`flex mb-3 ${isMobile ? "flex-col gap-2" : "flex-row gap-2"}`}>
+          <div className={`flex mb-3 ${isMobile ? "flex-col gap-2" : "flex-col gap-2"}`}>
             <input
               value={original}
               onChange={(e) => setOriginal(e.target.value)}
