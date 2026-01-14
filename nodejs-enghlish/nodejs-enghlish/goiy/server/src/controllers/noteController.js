@@ -1,11 +1,9 @@
-import { validationResult } from 'express-validator';
+const { validationResult } = require('express-validator');
+const Note = require('../models/Notes');
+const cloudinary = require('cloudinary').v2;
 
-import Note from '../models/Notes.js';
-
-
-import { v2 as cloudinary } from 'cloudinary';
 // ✅ CREATE - Đã sửa lỗi Duplicate và Rò rỉ Ảnh
-export const createNote = async (req, res) => {
+const createNote = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ msg: errors.array()[0].msg });
 
@@ -13,13 +11,13 @@ export const createNote = async (req, res) => {
 
   // Tinh chỉnh: Dùng một public_id dự kiến ban đầu, hoặc tạo mới sau
   // Tuy nhiên, việc tạo public_id dựa trên Date.now() trước khi kiểm tra vẫn ổn
-  const public_id_base = `note_${req.user.id}_${Date.now()}`;
+  const public_id_base = `note_${req.user._id}_${Date.now()}`;
 
   try {
     // --- BƯỚC 1: KIỂM TRA DUPLICATE (Không bắt buộc nếu có Unique Index) ---
     // (Giữ lại logic này như một lớp bảo vệ frontend)
     const existingNote = await Note.findOne({
-      user_id: req.user.id,
+      user_id: req.user._id,
       original: original.trim(),
     });
     if (existingNote) {
@@ -30,7 +28,7 @@ export const createNote = async (req, res) => {
     // Lưu Note *trước* khi upload ảnh.
     // Nếu Request B đến đây, nó sẽ bị chặn nếu có Unique Index (tránh duplicate note).
     const note = new Note({
-      user_id: req.user.id,
+      user_id: req.user._id,
       translate,
       original,
       // image và public_id ban đầu là rỗng/chưa có
@@ -95,20 +93,25 @@ export const createNote = async (req, res) => {
   }
 };
 // ✅ READ ALL
-export const getNotes = async (req, res) => {
-  const user_id = req.user.id;
+const getNotes = async (req, res) => {
+  const user_id = req.user._id;
+
   try {
-    const notes = await Note.find({ user_id });
+  const notes = await Note
+      .find({ user_id })
+      .sort({ updated_at: -1, _id: -1 });
+    console.log(`✅ Found ${notes.length} notes for user ${user_id}`);
     res.json(notes);
   } catch (err) {
+    console.error("❌ GetNotes Error:", err);
     res.status(500).json({ msg: 'Server error' });
   }
 };
 
 // ✅ READ ONE
-export const getNoteById = async (req, res) => {
+const getNoteById = async (req, res) => {
   const id = req.params.id;
-  const user_id = req.user.id;
+  const user_id = req.user._id;
   try {
     const note = await Note.findOne({ _id: id, user_id });
     if (!note) return res.status(404).json({ msg: 'Note not found' });
@@ -117,12 +120,9 @@ export const getNoteById = async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 };
-// Import cloudinary và Mongoose/Note Model (cần có sẵn trong ngữ cảnh file của bạn)
-// const Note = require('./models/Note');
-// const cloudinary = require('./cloudinaryConfig'); 
 
 // ✅ UPDATE (Cập nhật note + ảnh Cloudinary)
-export const updateNote = async (req, res) => {
+const updateNote = async (req, res) => {
   // Biến để lưu Public ID của ảnh mới upload (dùng cho việc dọn dẹp)
   let uploadedPublicId = null;
 
@@ -134,7 +134,7 @@ export const updateNote = async (req, res) => {
     // 1. Tìm note và kiểm tra tồn tại
     const note = await Note.findOne({
       _id: req.params.id,
-      user_id: req.user.id,
+      user_id: req.user._id,
     });
 
     if (!note) {
@@ -174,7 +174,7 @@ export const updateNote = async (req, res) => {
           }
 
           // Upload ảnh mới
-          const newPublicId = `note_${req.user.id}_${Date.now()}`;
+          const newPublicId = `note_${req.user._id}_${Date.now()}`;
           console.log("⬆️ Upload ảnh mới:", newPublicId);
 
           const uploadResult = await cloudinary.uploader.upload(image, {
@@ -202,7 +202,7 @@ export const updateNote = async (req, res) => {
       const updatedNote = await Note.findOneAndUpdate(
         {
           _id: req.params.id,
-          user_id: req.user.id,
+          user_id: req.user._id,
           version: clientUpdate // 🔑 ĐIỀU KIỆN KHÓA! Phải khớp với version gửi lên
         },
         {
@@ -258,11 +258,14 @@ export const updateNote = async (req, res) => {
   }
 };
 // ✅ DELETE (Xóa note + ảnh Cloudinary)
-export const deleteNote = async (req, res) => {
+const deleteNote = async (req, res) => {
+  console.log("ID param:", req.params.id);
+console.log("User from token:", req.user);
+
   try {
     const note = await Note.findOne({
       _id: req.params.id,
-      user_id: req.user.id,
+      user_id: req.user._id,
     });
 
     if (!note) return res.status(404).json({ msg: 'Note not found' });
@@ -280,4 +283,12 @@ export const deleteNote = async (req, res) => {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
   }
+};
+
+module.exports = {
+  createNote,
+  getNotes,
+  getNoteById,
+  updateNote,
+  deleteNote
 };
