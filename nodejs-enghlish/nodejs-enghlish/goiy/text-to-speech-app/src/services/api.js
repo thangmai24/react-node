@@ -62,4 +62,10 @@ export const notesAPI = {
   delete: (id) => API.delete(`/notes/${id}`)
 };
 
+export const userAPI = {
+  getProfile: () => API.get('/users/profile'),
+  updateProfile: (data) => API.put('/users/profile', data),
+  getAllUsers: () => API.get('/users/users')
+};
+
 export default API;

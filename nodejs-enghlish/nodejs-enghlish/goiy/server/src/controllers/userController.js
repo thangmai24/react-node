@@ -169,4 +169,65 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refresh, logout };
+const getProfile = async (req, res) => {
+  try {
+    res.json(req.user);
+
+  } catch (error) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const { name, age } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    if (name) user.name = name;
+    if (age) user.age = age;
+    // if (email) user.email = email;
+
+    await user.save();
+
+    // Return updated user without password
+    const updatedUser = user.toObject();
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Clean up tokens
+    const userTokensKey = `user_tokens:${userId}`;
+    const activeTokens = await redis.smembers(userTokensKey);
+    if (activeTokens.length > 0) {
+      const keysToDelete = activeTokens.map(token => `rt:${token}`);
+      await redis.del(...keysToDelete);
+    }
+    await redis.del(userTokensKey);
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    res.clearCookie('refresh_token', { ...refreshCookieOptions, maxAge: 0 });
+    res.json({ msg: 'User deleted' });
+  } catch (error) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+module.exports = { register, login, refresh, logout, getProfile, updateProfile, deleteUser, getAllUsers };
