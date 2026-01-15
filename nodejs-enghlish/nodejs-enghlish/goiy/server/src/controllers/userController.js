@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const redis = require('../config/redis');
 
-const REFRESH_TTL_SECONDS = 3600;
+const REFRESH_TTL_SECONDS = 1296000;
 const ACCESS_TTL_SECONDS = 60; // access token lifetime in seconds
 const isProd = process.env.NODE_ENV === 'production';
 const refreshCookieOptions = {

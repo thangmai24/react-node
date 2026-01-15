@@ -2,19 +2,22 @@ import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
-
+import { authAPI } from '../services/api';
 const Navbar = () => {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            const decoded = jwtDecode(token);
-            setUser({ id: decoded.id, name: decoded.name });
+    
+    useEffect(() => async () => {
+        const token = await authAPI.verifyToken();
+      
+        if (token && token.data.user) {
+            // const decoded = jwtDecode(token);
+            const user = token.data.user;
+            console.log("User info from token:", user);
+            setUser({ id: user._id, name: user.name });
         }
     }, []);
 
