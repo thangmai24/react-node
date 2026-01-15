@@ -4,12 +4,14 @@ const OtpModel = require('../models/OtpModel');
 const UserModel = require('../models/User'); // Giả sử bạn có model User để kiểm tra email tồn tại
 
 // Cấu hình Transporter (Người đưa thư)
-// Lưu ý: Nếu dùng Gmail, bạn phải dùng "App Password" chứ không phải mật khẩu đăng nhập thường.
+// Sử dụng SendGrid cho độ tin cậy cao trên cloud platforms như Render
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.sendgrid.net',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER, // Email của bạn (trong .env)
-    pass: process.env.EMAIL_PASS, // Mật khẩu ứng dụng (trong .env)
+    user: 'apikey',
+    pass: process.env.SENDGRID_API_KEY, // API key từ SendGrid
   },
 });
 

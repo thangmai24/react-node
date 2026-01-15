@@ -36,15 +36,16 @@ const Dashboard = () => {
     };
     checkToken();
   }, [navigate]);
-  // TTS Settings
   const [ttsSettings, setTtsSettings] = useState({
     speed: 0.9,        // Tốc độ (0.1 - 2.0)
     repeat: 1,         // Số lần lặp (1 - 5)
     volume: 1,         // Âm lượng (0 - 1)
     pitch: 1,          // Cao độ (0 - 2)
     autoPlay: false,   // Tự động phát khi nhận response
-    currentVoice: 'en-US' // Ngôn ngữ giọng nói
+    currentVoice: 'Microsoft David - English (United States)' // Ngôn ngữ giọng nói
   });
+
+  const [voices, setVoices] = useState([]);
 
   const topics = [
     { value: 'school', label: 'School Life' },
@@ -73,9 +74,10 @@ const Dashboard = () => {
   // Load available voices khi speechSynthesis sẵn sàng
   useEffect(() => {
     const loadVoices = () => {
-      const voices = speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+      const availableVoices = speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+        setVoices(availableVoices);
+        console.log('Available voices:', availableVoices.map(v => `${v.name} (${v.lang})`));
       }
     };
 
@@ -114,9 +116,9 @@ const Dashboard = () => {
       utterance.lang = settings.currentVoice;
 
       // Tìm voice phù hợp nếu có
-      const voices = speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice =>
-        voice.lang.startsWith(settings.currentVoice.split('-')[0])
+      const availableVoices = speechSynthesis.getVoices();
+      const preferredVoice = availableVoices.find(voice =>
+        voice.name === settings.currentVoice
       );
       if (preferredVoice) {
         utterance.voice = preferredVoice;
@@ -225,7 +227,7 @@ const Dashboard = () => {
       volume: 1,
       pitch: 1,
       autoPlay: false,
-      currentVoice: 'en-US'
+      currentVoice: 'Microsoft David - English (United States)'
     });
   };
 
@@ -359,17 +361,34 @@ const Dashboard = () => {
 
                     {/* Voice Selection */}
                     <div className="mb-4">
-                      <label className="block mb-1 text-xs font-medium">Ngôn ngữ:</label>
+                      <label className="block mb-1 text-xs font-medium">Giọng nói:</label>
                       <select
                         value={ttsSettings.currentVoice}
                         onChange={(e) => updateTtsSetting('currentVoice', e.target.value)}
                         className="w-full p-2 rounded border border-gray-300 bg-white text-xs"
                       >
-                        <option value="en-US">English (US)</option>
-                        <option value="en-GB">English (UK)</option>
-                        <option value="vi-VN">Tiếng Việt</option>
-                        <option value="es-ES">Español</option>
-                        <option value="fr-FR">Français</option>
+                        <option value="Microsoft David - English (United States)">Microsoft David - English (United States) (en-US)</option>
+                        <option value="Microsoft Mark - English (United States)">Microsoft Mark - English (United States) (en-US)</option>
+                        <option value="Microsoft Zira - English (United States)">Microsoft Zira - English (United States) (en-US)</option>
+                        <option value="Google Deutsch">Google Deutsch (de-DE)</option>
+                        <option value="Google US English">Google US English (en-US)</option>
+                        <option value="Google UK English Female">Google UK English Female (en-GB)</option>
+                        <option value="Google UK English Male">Google UK English Male (en-GB)</option>
+                        <option value="Google español">Google español (es-ES)</option>
+                        <option value="Google español de Estados Unidos">Google español de Estados Unidos (es-US)</option>
+                        <option value="Google français">Google français (fr-FR)</option>
+                        <option value="Google हिन्दी">Google हिन्दी (hi-IN)</option>
+                        <option value="Google Bahasa Indonesia">Google Bahasa Indonesia (id-ID)</option>
+                        <option value="Google italiano">Google italiano (it-IT)</option>
+                        <option value="Google 日本語">Google 日本語 (ja-JP)</option>
+                        <option value="Google 한국의">Google 한국의 (ko-KR)</option>
+                        <option value="Google Nederlands">Google Nederlands (nl-NL)</option>
+                        <option value="Google polski">Google polski (pl-PL)</option>
+                        <option value="Google português do Brasil">Google português do Brasil (pt-BR)</option>
+                        <option value="Google русский">Google русский (ru-RU)</option>
+                        <option value="Google 普通话（中国大陆）">Google 普通话（中国大陆） (zh-CN)</option>
+                        <option value="Google 粤語（香港）">Google 粤語（香港） (zh-HK)</option>
+                        <option value="Google 國語（臺灣）">Google 國語（臺灣） (zh-TW)</option>
                       </select>
                     </div>
 
