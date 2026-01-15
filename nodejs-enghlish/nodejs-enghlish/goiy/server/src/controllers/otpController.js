@@ -80,3 +80,73 @@ exports.verifyOtp = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 }
+
+exports.sendOtpForRegister = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email đã tồn tại' });
+    }
+
+    // Generate OTP
+    const otpCode = generateOTP();
+
+    // Save OTP
+    await OtpModel.findOneAndUpdate(
+      { email }, 
+      { otp: otpCode, createdAt: new Date() }, 
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    // Send email
+    const mailOptions = {
+      from: `"Support Team" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Mã xác thực đăng ký',
+      html: `
+        <h3>Mã xác thực đăng ký</h3>
+        <p>Mã của bạn là: <b style="font-size: 24px; color: blue;">${otpCode}</b></p>
+        <p>Mã này sẽ hết hạn sau 5 phút.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: 'Đã gửi OTP thành công' });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Lỗi gửi email', error: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  try {
+    // Verify OTP
+    const validOtp = await OtpModel.findOne({ email, otp });
+    if (!validOtp) {
+      return res.status(400).json({ message: 'Mã OTP không đúng hoặc đã hết hạn' });
+    }
+
+    // Find user
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    // Delete OTP
+    await OtpModel.deleteOne({ email });
+
+    return res.status(200).json({ message: 'Mật khẩu đã được reset' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};

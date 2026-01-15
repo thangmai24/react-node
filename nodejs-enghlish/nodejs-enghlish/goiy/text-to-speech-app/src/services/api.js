@@ -68,4 +68,11 @@ export const userAPI = {
   getAllUsers: () => API.get('/users/users')
 };
 
+export const otpAPI = {
+  sendOtp: (data) => API.post('/otp/send-otp', data),
+  verifyOtp: (data) => API.post('/otp/verify-otp', data),
+  sendOtpForRegister: (data) => API.post('/otp/send-otp-register', data),
+  resetPassword: (data) => API.post('/otp/reset-password', data)
+};
+
 export default API;

@@ -16,11 +16,11 @@ const refreshCookieOptions = {
 
 const register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, age } = req.body;
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
 
-    user = new User({name, email, password });
+    user = new User({name, email, password, age });
     await user.save();
 
     const payload = { id: user.id,  name: user.name };
