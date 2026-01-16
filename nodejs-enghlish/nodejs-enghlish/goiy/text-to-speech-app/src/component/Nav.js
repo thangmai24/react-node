@@ -85,6 +85,12 @@ const Navbar = () => {
                     >
                         Contact
                     </li>
+                        <li
+                        className="hover:text-blue-500 cursor-pointer"
+                        onClick={() => navigate("/dictation")}
+                    >
+                        Dictation
+                    </li>
                 </ul>
 
                 {/* Avatar + user dropdown (desktop) */}
