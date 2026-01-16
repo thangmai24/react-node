@@ -12,6 +12,7 @@ const Notes = () => {
   const [image, setImage] = useState(null);
   const [original, setOriginal] = useState("");
   const [translate, setTranslate] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
@@ -114,7 +115,9 @@ const Notes = () => {
   };
 
   const handleSubmit = async () => {
+    if (!original.trim() || !translate.trim() || saving) return;
     try {
+      setSaving(true);
       let user_id = null;
       const token = localStorage.getItem("token");
 
@@ -160,6 +163,8 @@ const Notes = () => {
     } catch (err) {
       alert("Lỗi khi lưu!");
       console.error(err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -240,8 +245,12 @@ const Notes = () => {
 
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 text-white px-4 py-1 rounded"
+            disabled={saving || !original.trim() || !translate.trim()}
+            className={`bg-blue-600 text-white px-4 py-1 rounded flex items-center justify-center ${saving || !original.trim() || !translate.trim() ? "opacity-60 cursor-not-allowed" : ""}`}
           >
+            {saving && (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+            )}
             Lưu
           </button>
         </div>

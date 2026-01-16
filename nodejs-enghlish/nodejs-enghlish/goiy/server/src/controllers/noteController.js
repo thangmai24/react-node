@@ -165,34 +165,48 @@ const updateNote = async (req, res) => {
       let public_id = note.public_id;
 
       // 3. Xử lý Upload/Thay thế ảnh (Thao tác I/O tốn thời gian)
-      if (image) {
-        try {
-          // Xóa ảnh cũ
-          if (public_id) {
-            console.log("🗑️ Xóa ảnh cũ:", public_id);
-            await cloudinary.uploader.destroy(public_id, { invalidate: true });
-          }
+      // Chỉ xử lý nếu có gửi image lên và image KHÁC image cũ
+      if (image !== undefined && image !== note.image) {
+        
+        // Trường hợp xóa ảnh (Client gửi chuỗi rỗng)
+        if (image === "") {
+             if (public_id) {
+                console.log("🗑️ Xóa ảnh cũ (User deleted):", public_id);
+                await cloudinary.uploader.destroy(public_id, { invalidate: true });
+             }
+             imageUrl = "";
+             public_id = "";
+        } else {
+             // Trường hợp thay ảnh mới (hoặc ảnh placeholder "image/logo.png" nếu lọt qua)
+             // Lưu ý: Nếu image là "image/logo.png" thì Cloudinary có thể lỗi, nên FE cần xử lý kỹ.
+             // Tuy nhiên, logic này vẫn đúng: Nếu khác ảnh cũ thì mới làm.
+             
+             try {
+                // Xóa ảnh cũ
+                if (public_id) {
+                    console.log("🗑️ Xóa ảnh cũ (Update):", public_id);
+                    await cloudinary.uploader.destroy(public_id, { invalidate: true });
+                }
 
-          // Upload ảnh mới
-          const newPublicId = `note_${req.user._id}_${Date.now()}`;
-          console.log("⬆️ Upload ảnh mới:", newPublicId);
+                // Upload ảnh mới
+                const newPublicId = `note_${req.user._id}_${Date.now()}`;
+                console.log("⬆️ Upload ảnh mới:", newPublicId);
+                
+                const uploadResult = await cloudinary.uploader.upload(image, {
+                    folder: 'notes_images',
+                    public_id: newPublicId,
+                    overwrite: true,
+                    invalidate: true,
+                });
 
-          const uploadResult = await cloudinary.uploader.upload(image, {
-            folder: 'notes_images',
-            public_id: newPublicId,
-            overwrite: true,
-            invalidate: true,
-          });
+                imageUrl = uploadResult.secure_url;
+                public_id = uploadResult.public_id;
+                uploadedPublicId = public_id;
 
-          imageUrl = uploadResult.secure_url;
-          public_id = uploadResult.public_id;
-          // LƯU PUBLIC ID MỚI VÀO BIẾN TẠM THỜI CHO VIỆC DỌN DẸP
-          uploadedPublicId = public_id;
-
-        } catch (uploadErr) {
-          console.error("🔥 Lỗi upload ảnh lên Cloudinary:", uploadErr);
-          // Nếu lỗi upload, dừng lại ngay TRƯỚC khi chạm vào DB
-          return res.status(500).json({ msg: 'Lỗi upload ảnh', error: uploadErr.message });
+             } catch (uploadErr) {
+                console.error("🔥 Lỗi upload ảnh lên Cloudinary:", uploadErr);
+                return res.status(500).json({ msg: 'Lỗi upload ảnh', error: uploadErr.message });
+             }
         }
       }
 

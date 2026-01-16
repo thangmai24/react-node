@@ -34,6 +34,7 @@ export default function NotesApp() {
     img: '',
     version: 1, // ✅ Khởi tạo version trong formData
   });
+  const [saving, setSaving] = useState(false);
 
   // 🔑 HÀM TÁI SỬ DỤNG: Tải lại toàn bộ Notes từ Server
   const fetchNotes = useCallback(async () => {
@@ -73,9 +74,10 @@ export default function NotesApp() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.original || !formData.translate) return;
+    if (!formData.original.trim() || !formData.translate.trim() || saving) return;
 
     try {
+      setSaving(true);
       let imageUrl = formData.img;
       // 🛑 LƯU Ý: Với Cloudinary upload trên FE,
       // bạn cần xử lý trường hợp người dùng xóa ảnh (set formData.img = '')
@@ -144,6 +146,8 @@ export default function NotesApp() {
       } else {
         alert("Không thể lưu ghi chú! Vui lòng kiểm tra kết nối hoặc thử lại.");
       }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -152,7 +156,7 @@ export default function NotesApp() {
     setFormData({
       original: note.original,
       translate: note.translate,
-      img: note.img,
+      img: note.img === "image/logo.png" ? "" : note.img,
       version: note.version, // 🔑 Truyền version hiện tại của note vào form
     });
     setIsAdding(true);
@@ -356,8 +360,12 @@ export default function NotesApp() {
                   <div className="flex gap-3">
                     <button
                       onClick={handleSubmit}
-                      className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                      disabled={saving || !formData.original.trim() || !formData.translate.trim()}
+                      className={`bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center ${saving || !formData.original.trim() || !formData.translate.trim() ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
+                      {saving && (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      )}
                       {editingId ? 'Cập Nhật' : 'Lưu'}
                     </button>
                     <button

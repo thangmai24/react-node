@@ -54,6 +54,12 @@ export const chatAPI = {
   sendMessage: (data) => API.post('/chat', data)
 };
 
+export const dictationAPI = {
+  check: (data) => API.post('/dictation/check', data),
+  translate: (data) => API.post('/dictation/translate', data),
+  split: (data) => API.post('/dictation/split', data)
+};
+
 export const notesAPI = {
   getAll: (data) => API.post('/notes/show', data),
   getById: (id) => API.get(`/notes/${id}`),
