@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { authAPI } from '../services/api';
@@ -14,7 +13,6 @@ const Navbar = () => {
         const token = await authAPI.verifyToken();
       
         if (token && token.data.user) {
-            // const decoded = jwtDecode(token);
             const user = token.data.user;
             console.log("User info from token:", user);
             setUser({ id: user._id, name: user.name });

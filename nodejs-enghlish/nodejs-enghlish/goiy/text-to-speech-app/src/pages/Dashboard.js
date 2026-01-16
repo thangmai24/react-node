@@ -45,8 +45,6 @@ const Dashboard = () => {
     currentVoice: 'Microsoft David - English (United States)' // Ngôn ngữ giọng nói
   });
 
-  const [voices, setVoices] = useState([]);
-
   const topics = [
     { value: 'school', label: 'School Life' },
     { value: 'work', label: 'Work' },
@@ -76,7 +74,6 @@ const Dashboard = () => {
     const loadVoices = () => {
       const availableVoices = speechSynthesis.getVoices();
       if (availableVoices.length > 0) {
-        setVoices(availableVoices);
         console.log('Available voices:', availableVoices.map(v => `${v.name} (${v.lang})`));
       }
     };
